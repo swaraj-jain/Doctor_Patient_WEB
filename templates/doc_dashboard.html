@@ -1,0 +1,13 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <h1>Doctor_Dashboard <small> Welcome {{session.username}}</small></h1>
+
+    <form action="/DocAccPatOTPVerify" method="POST">
+        <div class="form-group">
+            <label for="p_otp">Enter patient OTP: </label>
+            <input type="text" class="form-control" id="p_otp" placeholder="" name="OTP">
+        </div>
+        <button class="btn btn-danger btn-block" id="access_to_doctor">Give access to doctor</button>
+    </form>
+{% endblock %}

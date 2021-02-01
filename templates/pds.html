@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <h1 style="text-align: center;">{{pinfo['name']}} Dashboard</h1>
+    <hr>
+    <form method="POST" action="/doc_upload" enctype="multipart/form-data">
+        <label>Select report to upload:</label>
+        <input type="file" name="file"><br><br>
+        <button type="btn btn-primary">Submit</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,395 @@
+from flask import Flask, render_template, request, flash, redirect, url_for, session, logging
+from functools import wraps
+from wtforms import Form, StringField, TextAreaField, PasswordField, validators
+from flask_mail import Mail, Message
+from random import randint
+import time
+import os
+import pyrebase
+import hashlib
+
+config = {
+    "apiKey": "AIzaSyBztvVpB2d3Va3-jnDaySRdvbuiAv1wAbY",
+    "authDomain": "docpat-39080.firebaseapp.com",
+    "databaseURL": "https://docpat-39080-default-rtdb.firebaseio.com",
+    "projectId": "docpat-39080",
+    "storageBucket": "docpat-39080.appspot.com",
+    "messagingSenderId": "904461611164",
+    "appId": "1:904461611164:web:12e33fffd151d84bb67d59",
+    "measurementId": "G-79EJQS44WG"
+}
+
+
+firebase = pyrebase.initialize_app(config)
+db = firebase.database()
+
+app = Flask(__name__)
+mail = Mail(app)
+app.config["MAIL_SERVER"] = 'smtp.gmail.com'
+app.config["MAIL_PORT"] = 465
+app.config["MAIL_USERNAME"] = "swarajxxx69@gmail.com"
+app.config['MAIL_PASSWORD'] = 'swarajfucks'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
+
+DocForm = None
+
+
+def OTP_gen():
+    return randint(100000, 1000000)
+
+
+class DocRegisterForm(Form):
+    docId = StringField('DocId', [
+        validators.DataRequired(),
+        validators.Length(min=1, max=50)
+    ])
+    name = StringField('Name', [validators.Length(min=1, max=50)])
+    email = StringField('Email', [validators.Length(min=6, max=50)])
+    password = PasswordField('Password', [
+        validators.DataRequired(),
+        validators.EqualTo('confirmed', message='Passwords do not match')
+    ])
+    confirmed = PasswordField('Confirm Password')
+
+
+class PatRegisterForm(Form):
+    name = StringField('Name', [validators.Length(min=1, max=50)])
+    email = StringField('Email', [validators.Length(min=6, max=50)])
+    password = PasswordField('Password', [
+        validators.DataRequired(),
+        validators.EqualTo('confirmed', message='Passwords do not match')
+    ])
+    confirmed = PasswordField('Confirm Password')
+
+
+class DocLoginForm(Form):
+    email = StringField('Email', [
+        validators.DataRequired(),
+        validators.Length(min=6, max=50)
+    ])
+    password = PasswordField('Password', [
+        validators.DataRequired()
+    ])
+
+
+class PatLoginForm(Form):
+    email = StringField('Email', [
+        validators.DataRequired(),
+        validators.Length(min=6, max=50)
+    ])
+    password = PasswordField('Password', [
+        validators.DataRequired()
+    ])
+
+
+class OTPVerify(Form):
+    otp = StringField('OTP', [
+        validators.DataRequired(),
+        validators.Length(min=6, max=6)
+    ])
+
+
+@app.route('/')
+def index():
+    form1 = PatLoginForm(request.form)
+    form2 = DocLoginForm(request.form)
+    return render_template('login.html', form1=form1, form2=form2)
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form1 = PatRegisterForm(request.form)
+    form2 = DocRegisterForm(request.form)
+    return render_template('register.html', form1=form1, form2=form2)
+
+
+@app.route('/patRegister', methods=['GET', 'POST'])
+def patRregister():
+    form = PatRegisterForm(request.form)
+    if request.method == 'POST' and form.validate():
+        # To check if the patient is already registered.
+        email = form.email.data
+
+        users = db.child("Users/Patients").get().val()
+        for x in users:
+            if users[x]['email'] == email:
+                flash("An account with this email already exists", "danger")
+                return redirect(url_for('register'))
+
+        name = form.name.data
+        password = hashlib.sha256(str(form.password.data).encode())
+        password = password.hexdigest()
+
+        data = {
+            "name": name,
+            "email": email,
+            "password": password,
+            "Reports": ""
+        }
+
+        db.child("Users/Patients").push(data)
+
+        flash('Patient, you are now registered and can log in', 'success')
+
+        return redirect(url_for('login'))
+    return redirect(url_for('register'))
+
+
+@app.route('/docVerify', methods=['GET', 'POST'])
+def docVerify():
+    global DocForm
+    form = DocRegisterForm(request.form)
+
+    if (form.validate() and request.method == 'POST'):
+        email = form.email.data
+        users = db.child("Users/Doctors").get().val()
+
+        for x in users:
+            if users[x]['email'] == email:
+                flash("An account with this email already exists", "danger")
+                return redirect(url_for('register'))
+
+        DocForm = form
+        msg = Message('OTP', sender='swarajxxx69@gmail.com', recipients=[email])
+        OTP = OTP_gen()
+        msg.body = str("Your secret OTP is: " + str(OTP))
+        mail.send(msg)
+
+        db.child("OTPs").push({
+            "email": email,
+            "OTP": OTP
+        })
+
+        return redirect(url_for('otpVerify'))
+
+    return redirect(url_for('register'))
+
+
+@app.route('/otpVerify', methods=['GET', 'POST'])
+def otpVerify():
+    global DocForm
+
+    otp = (OTPVerify(request.form)).otp.data
+    otp2 = "" # otp stored in the db
+
+    if len(otp):
+        OTPs = db.child("OTPs").get().val()
+        for OTP in OTPs:
+            if OTPs[OTP]["email"] == DocForm.email.data:
+                otp2 = OTPs[OTP]["OTP"]
+                break
+        print(otp2, otp, otp2 == otp)
+
+        if str(otp) == str(otp2):
+            docId = DocForm.docId.data
+            name = DocForm.name.data
+            email = DocForm.email.data
+            password = hashlib.sha256(str(DocForm.password.data).encode())
+            password = password.hexdigest()
+
+            data = {
+                "DocId": docId,
+                "name": name,
+                "email": email,
+                "password": password
+            }
+
+            db.child("Users/Doctors").push(data)
+
+            flash('Doctor, you are now registered and can log in', 'success')
+
+            return redirect(url_for('login'))
+        else:
+            flash('Wrong otp', 'danger')
+
+    return render_template('otpVerify.html', form=OTPVerify(request.form))
+
+
+############################################ Login
+
+@app.route('/login')
+def login():
+    return redirect(url_for('index'))
+
+
+############################################################################## Doctor Login
+
+
+@app.route('/docLogin', methods=['POST','GET'])
+def docLogin():
+    form = DocLoginForm(request.form)
+    if (form.validate() and request.method == 'POST'):
+        email = form.email.data
+        password = hashlib.sha256(str(form.password.data).encode())
+        password = password.hexdigest()
+
+        users = db.child("Users/Doctors").get().val()
+        user = None
+        for x in users:
+            if users[x]['email'] == email and users[x]['password'] == password:
+                user = users[x]
+                print(user)
+                break
+
+        if user is None:
+            app.logger.info("Udd gye tote")
+            flash('Please check your credentials', 'danger')
+            return redirect(url_for('login'))
+        else:
+            app.logger.info("Welcome")
+
+            session['logged_in'] = True
+            session['username'] = user['name']
+            session['email'] = user['email']
+            flash('Welcome ' + user['name'] + '!', 'success')
+
+            return redirect(url_for('doc_dashboard'))
+
+    return render_template('login.html', form2=form, form1=form)
+
+
+
+####################################################################### Patient Login
+
+
+@app.route('/patLogin', methods=['POST','GET'])
+def patLogin():
+    form = PatLoginForm(request.form)
+    if (form.validate() and request.method == 'POST'):
+        email = form.email.data
+        password = hashlib.sha256(str(form.password.data).encode())
+        password = password.hexdigest()
+
+        users = db.child("Users/Patients").get().val()
+        user = None
+        user_id = None
+        for x in users:
+            if users[x]['email'] == email and users[x]['password'] == password:
+                user = users[x]
+                user_id = x
+                print(user)
+                break
+
+        if user is None:
+            app.logger.info("Udd gye tote")
+            flash('Please check your credentials', 'danger')
+            return redirect(url_for('login'))
+        else:
+            app.logger.info("Welcome")
+
+            session['logged_in'] = True
+            session['username'] = user['name']
+            session['email'] = user['email']
+            session['patient_id'] = user_id
+            flash('Welcome ' + user['name'] + '!', 'success')
+
+            return redirect(url_for('pat_dashboard'))
+
+    return render_template('login.html', form1=form, form2=form)
+
+
+###################################################################################################
+
+# Check if the user is logged in
+def is_logged_in(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'logged_in' in session:
+            return f(*args, **kwargs)
+        else:
+            flash('Unauthorized, Please login', 'danger')
+            return redirect(url_for('login'))
+    return wrap
+
+
+@app.route('/PatAccessDocOTP', methods=['POST'])
+def PatAccessDocOTP():
+    OTP = OTP_gen()
+    db.child("OTPs").push({
+        "patient_id": session['patient_id'],
+        "OTP": OTP
+    })
+    return render_template('pat_dashboard.html', OTP=OTP)
+
+
+@app.route('/Delete_OTP')
+def Delete_OTP():
+    time.sleep(10)
+
+    if len(session['email']):    # yeh isiliye ki agar bich me user logout kar gya toh
+        this_OTP="Your OTP is Expired"
+        OTPs = db.child("OTPs").get().val()
+        for OTP in OTPs:
+            if OTPs[OTP]['patient_id'] == session['patient_id']:
+                db.child("OTPs/"+OTP).remove()
+
+    return render_template('pat_dashboard.html', OTP=this_OTP)
+
+@app.route('/pat_dashboard')
+@is_logged_in
+def pat_dashboard():
+    return render_template('pat_dashboard.html')
+
+
+###############################################################################################  Doctor part
+
+@app.route('/doc_dashboard')
+@is_logged_in
+def doc_dashboard():
+    return render_template('doc_dashboard.html')
+
+################################################################## 
+
+@app.route('/doctor_patientacess_otp_verify' , methods=['POST'])
+@is_logged_in
+def doctor_patientacess_otp_verify():
+    data = request.form
+    ##print(data)
+    Patient_Acess_OTP = data['Patient_Acess_OTP']
+
+    print(Patient_Acess_OTP)
+
+    OTPs = db.child("OTPs").get().val()
+    for x in OTPs:
+        print(OTPs[x]['OTP'])
+        if(str(OTPs[x]['OTP']) == str(Patient_Acess_OTP)):
+            pinfo = db.child("Users/Patients/"+OTPs[x]['patient_id']).get().val()
+            return render_template('pds.html',pinfo=pinfo)
+    flash('No Patient Found,Try Again', 'danger')
+    return redirect(url_for('doc_dashboard'))
+    
+
+@app.route('/upload_report',methods=['POST'])
+def upload_report():
+    report = request.files['report']
+    if(os.path.exists('upload_images')):
+        report.save(os.path.join('/upload_images',report.filename))
+        print('hiiii')
+        os. remove(os.path.join('/upload_images',report.filename))
+    else:
+        print('hiiiiiii')
+    return 'hii'
+
+
+
+########################################################################################## Doctor complete
+# Logout
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('You are now logged out', 'success')
+    return redirect(url_for("login"))
+
+#################################################################
+
+@app.route('/dashboard')
+@is_logged_in
+def dashboard():
+    return render_template('dashboard.html')
+
+
+if __name__ == '__main__':
+    app.secret_key = 'secret123'
+    app.run(debug=True)

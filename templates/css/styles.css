@@ -1,0 +1,181 @@
+.modal .modal-header {
+  background: #512DA8; }
+
+.modal .modal-body {
+  background: #D1C4E9; }
+
+.row-header {
+  margin: 0px auto;
+  padding: 0px 0px; }
+
+.row-content {
+  margin: 0px auto;
+  padding: 50px 0px;
+  border-bottom: 1px ridge;
+  min-height: 400px; }
+
+.footer {
+  background-color: #D1C4E9;
+  margin: 0px auto;
+  padding: 20px 0px; }
+
+.jumbotron {
+  margin: 0px auto;
+  padding: 20px 0px;
+  background: #9575CD;
+  color: floralwhite; }
+
+body {
+  padding: 50px 0px 0px 0px;
+  z-index: 0; }
+
+.address {
+  font-size: 80%;
+  margin: 0px;
+  color: #0f0f0f;
+  text-align: center; }
+
+.aboutus {
+  margin: 0px;
+  padding-left: 0px;
+  margin-bottom: 90px; }
+
+.text-center {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center; }
+
+.text-center > * {
+  border-right: 1px floralwhite;
+  margin-right: 10px; }
+
+.navbar-dark {
+  background-color: #512DA8; }
+
+.nav-item {
+  margin-right: 5px; }
+
+.card-header {
+  background-color: darkorange;
+  color: floralwhite;
+  font-size: 38px; }
+
+.form-check-input {
+  margin-top: 0.4rem; }
+
+.category {
+  font-weight: 600; }
+
+.checkbox-round {
+  width: 1em;
+  height: 1em;
+  background-color: white;
+  border-radius: 50%;
+  vertical-align: middle;
+  border: 1px solid #ddd;
+  -webkit-appearance: none;
+  outline: none;
+  cursor: pointer;
+  box-shadow: inset 0px 0px 2px 0px; }
+
+.checkbox-round:checked {
+  background-color: greenyellow; }
+
+.seat {
+  margin-right: 1px; }
+
+.checkboxes {
+  padding-left: 0px; }
+
+.dateTime {
+  width: inherit; }
+
+.carousel {
+  background: #512DA8; }
+  .carousel .carousel-item {
+    height: 300px; }
+    .carousel .carousel-item img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      min-height: 300px; }
+
+.buffet-image {
+  margin-left: 20px; }
+
+.btn-sm {
+  background: darkorange;
+  width: 95%;
+  border-radius: 12px;
+  font-size: 15px;
+  transition-duration: 0.4s;
+  border: 2px solid darkorange;
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); }
+
+.btn-sm:hover {
+  background-color: floralwhite; }
+
+.btn-sm span:after {
+  content: '\00bb';
+  position: absolute;
+  opacity: 0;
+  top: -5px;
+  right: 24px;
+  transition: .5s;
+  font-size: 27px; }
+
+.btn-sm:hover span {
+  padding-right: 15px; }
+
+.btn-sm:hover span::after {
+  opacity: 1;
+  right: 32px; }
+
+.btn-sm span {
+  text-decoration: none;
+  color: black;
+  font-weight: 600; }
+
+.navbar .container {
+  margin-left: 10%; }
+
+.carousel-control-prev, .carousel-control-next {
+  background: rgba(0, 0, 0, 0.2); }
+
+.modal .badge {
+  border: 0;
+  padding: 0.75rem 0.6rem;
+  border-radius: 1px;
+  outline: none;
+  margin-bottom: 0;
+  cursor: pointer; }
+
+.modal input[type="radio"]:checked + label[for="non-smoking"] {
+  box-shadow: 0px 0px 4px 4px #23f515;
+  transform: scale(1.01); }
+
+.modal input[type="radio"]:checked + label[for="smoking"] {
+  box-shadow: 0px 0px 4px 4px #a00b0b;
+  transform: scale(1.01); }
+
+.modal input[type="radio"] {
+  opacity: 0;
+  position: fixed;
+  width: 0;
+  cursor: pointer; }
+
+#accordion .card-header {
+  cursor: pointer; }
+
+.login {
+  cursor: pointer; }
+
+.fa-sign-in {
+  cursor: pointer; }
+
+#carouselButton {
+  right: 0px;
+  position: absolute;
+  bottom: 0px;
+  z-index: 1; }

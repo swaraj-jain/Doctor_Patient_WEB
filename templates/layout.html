@@ -1,0 +1,43 @@
+<html>
+<head>
+    <title>DocPat</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .dont_display{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    {% include 'includes/_navbar.html' %}
+    <div class="container">
+        {% include 'includes/_messages.html' %}
+        {% block body %}{% endblock %}
+    </div>
+    <!--<script>
+        var give_acess_doctor_button=document.querySelector('#acess_to_doctor');
+        var dummy_text=document.querySelector('#dummy_text');
+        OTP=OTP
+        var text = document.createTextNode(OTP);
+        give_acess_doctor_button.onclick = (event) => {
+            dummy_text.appendChild(text);
+        }
+    </script>-->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>
+        var dummy_text=document.querySelector('#dummy_text');
+        OTP = dummy_text.innerHTML;
+        if(OTP.length == 6) {
+            $.ajax({
+                type:'GET',
+                url: "{{ url_for( 'Delete_OTP' ) }}", //'/Delete_OTP',
+                data: JSON, //.stringify({'myId':bunchOfIds}),
+                contentType: "application/json",
+                success:function(response){ document.write(response);}
+            }).done
+        };
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js">
+    </script>
+</body>
+</html>

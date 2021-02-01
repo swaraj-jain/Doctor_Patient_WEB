@@ -3,10 +3,14 @@ from functools import wraps
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from flask_mail import Mail, Message
 from random import randint
+import requests
 import time
-import os
 import pyrebase
 import hashlib
+import os
+from PIL import Image
+import numpy as np
+import cv2
 
 config = {
     "apiKey": "AIzaSyBztvVpB2d3Va3-jnDaySRdvbuiAv1wAbY",
@@ -18,7 +22,6 @@ config = {
     "appId": "1:904461611164:web:12e33fffd151d84bb67d59",
     "measurementId": "G-79EJQS44WG"
 }
-
 
 firebase = pyrebase.initialize_app(config)
 db = firebase.database()
@@ -34,6 +37,7 @@ app.config['MAIL_USE_SSL'] = True
 mail = Mail(app)
 
 DocForm = None
+storage = firebase.storage()
 
 
 def OTP_gen():
@@ -98,6 +102,52 @@ def index():
     return render_template('login.html', form1=form1, form2=form2)
 
 
+@app.route('/pat_upload', methods=['GET', 'POST'])
+def pat_upload():
+    if request.method == 'POST':
+        files = request.files.getlist("files")
+        for i, file in enumerate(files):
+            file = Image.open(file)
+            file.save("tmp.jpeg", "JPEG")
+            filepath = session['username'] + "/" + str(i) + str(time.time()) + ".jpeg"
+            storage.child(filepath).put("tmp.jpeg")
+            url = storage.child(filepath).get_url(None)
+            data = {
+                "Url": url,
+                "Pushed by": "Patient"
+            }
+            db.child("Users/Patients/" + session['patient_id'] + '/Reports').push(data)
+            os.remove("tmp.jpeg")
+
+        print("Uploaded " + str(len(files)) + " files!")
+        return redirect(url_for('pat_dashboard'))
+
+    return render_template("pat_upload.html")
+
+
+@app.route('/doc_upload', methods=['GET', 'POST'])
+def doc_upload():
+    if request.method == 'POST':
+        file = request.files['file']
+        file = Image.open(file)
+        file.save("tmp.jpeg", "JPEG")
+        filepath = session['username'] + "/" + str(time.time()) + ".jpeg"
+        storage.child(filepath).put("tmp.jpeg")
+        url = storage.child(filepath).get_url(None)
+        data = {
+            "Url": url,
+            "Pushed by": session["username"]
+        }
+        db.child("Users/Patients/" + session['patient_id'] + '/Reports').push(data)
+        os.remove("tmp.jpeg")
+
+        print("Uploaded files!")
+        session['patient_id'] = ""
+        return redirect(url_for('doc_dashboard'))
+
+    return render_template("pat_upload.html")
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form1 = PatRegisterForm(request.form)
@@ -134,6 +184,7 @@ def patRregister():
         flash('Patient, you are now registered and can log in', 'success')
 
         return redirect(url_for('login'))
+
     return redirect(url_for('register'))
 
 
@@ -142,7 +193,7 @@ def docVerify():
     global DocForm
     form = DocRegisterForm(request.form)
 
-    if (form.validate() and request.method == 'POST'):
+    if form.validate():
         email = form.email.data
         users = db.child("Users/Doctors").get().val()
 
@@ -157,7 +208,7 @@ def docVerify():
         msg.body = str("Your secret OTP is: " + str(OTP))
         mail.send(msg)
 
-        db.child("OTPs").push({
+        db.child("OTPs2").push({
             "email": email,
             "OTP": OTP
         })
@@ -172,12 +223,12 @@ def otpVerify():
     global DocForm
 
     otp = (OTPVerify(request.form)).otp.data
-    otp2 = "" # otp stored in the db
+    otp2 = ""  # otp stored in the db
 
     if len(otp):
-        OTPs = db.child("OTPs").get().val()
+        OTPs = db.child("OTPs2").get().val()
         for OTP in OTPs:
-            if OTPs[OTP]["email"] == DocForm.email.data:
+            if OTPs[OTP]['email'] == DocForm.email.data:
                 otp2 = OTPs[OTP]["OTP"]
                 break
         print(otp2, otp, otp2 == otp)
@@ -207,20 +258,15 @@ def otpVerify():
     return render_template('otpVerify.html', form=OTPVerify(request.form))
 
 
-############################################ Login
-
 @app.route('/login')
 def login():
     return redirect(url_for('index'))
 
 
-############################################################################## Doctor Login
-
-
-@app.route('/docLogin', methods=['POST','GET'])
+@app.route('/docLogin', methods=['POST'])
 def docLogin():
     form = DocLoginForm(request.form)
-    if (form.validate() and request.method == 'POST'):
+    if form.validate():
         email = form.email.data
         password = hashlib.sha256(str(form.password.data).encode())
         password = password.hexdigest()
@@ -250,14 +296,10 @@ def docLogin():
     return render_template('login.html', form2=form, form1=form)
 
 
-
-####################################################################### Patient Login
-
-
-@app.route('/patLogin', methods=['POST','GET'])
+@app.route('/patLogin', methods=['POST'])
 def patLogin():
     form = PatLoginForm(request.form)
-    if (form.validate() and request.method == 'POST'):
+    if form.validate():
         email = form.email.data
         password = hashlib.sha256(str(form.password.data).encode())
         password = password.hexdigest()
@@ -290,8 +332,6 @@ def patLogin():
     return render_template('login.html', form1=form, form2=form)
 
 
-###################################################################################################
-
 # Check if the user is logged in
 def is_logged_in(f):
     @wraps(f)
@@ -301,6 +341,7 @@ def is_logged_in(f):
         else:
             flash('Unauthorized, Please login', 'danger')
             return redirect(url_for('login'))
+
     return wrap
 
 
@@ -308,7 +349,7 @@ def is_logged_in(f):
 def PatAccessDocOTP():
     OTP = OTP_gen()
     db.child("OTPs").push({
-        "patient_id": session['patient_id'],
+        "email": session['email'],
         "OTP": OTP
     })
     return render_template('pat_dashboard.html', OTP=OTP)
@@ -318,8 +359,8 @@ def PatAccessDocOTP():
 def Delete_OTP():
     time.sleep(10)
 
-    if len(session['email']):    # yeh isiliye ki agar bich me user logout kar gya toh
-        this_OTP="Your OTP is Expired"
+    if len(session['email']):
+        this_OTP = "Your OTP is Expired"
         OTPs = db.child("OTPs").get().val()
         for OTP in OTPs:
             if OTPs[OTP]['patient_id'] == session['patient_id']:
@@ -327,54 +368,19 @@ def Delete_OTP():
 
     return render_template('pat_dashboard.html', OTP=this_OTP)
 
+
 @app.route('/pat_dashboard')
 @is_logged_in
 def pat_dashboard():
     return render_template('pat_dashboard.html')
 
 
-###############################################################################################  Doctor part
-
 @app.route('/doc_dashboard')
 @is_logged_in
 def doc_dashboard():
     return render_template('doc_dashboard.html')
 
-################################################################## 
 
-@app.route('/doctor_patientacess_otp_verify' , methods=['POST'])
-@is_logged_in
-def doctor_patientacess_otp_verify():
-    data = request.form
-    ##print(data)
-    Patient_Acess_OTP = data['Patient_Acess_OTP']
-
-    print(Patient_Acess_OTP)
-
-    OTPs = db.child("OTPs").get().val()
-    for x in OTPs:
-        print(OTPs[x]['OTP'])
-        if(str(OTPs[x]['OTP']) == str(Patient_Acess_OTP)):
-            pinfo = db.child("Users/Patients/"+OTPs[x]['patient_id']).get().val()
-            return render_template('pds.html',pinfo=pinfo)
-    flash('No Patient Found,Try Again', 'danger')
-    return redirect(url_for('doc_dashboard'))
-    
-
-@app.route('/upload_report',methods=['POST'])
-def upload_report():
-    report = request.files['report']
-    if(os.path.exists('upload_images')):
-        report.save(os.path.join('/upload_images',report.filename))
-        print('hiiii')
-        os. remove(os.path.join('/upload_images',report.filename))
-    else:
-        print('hiiiiiii')
-    return 'hii'
-
-
-
-########################################################################################## Doctor complete
 # Logout
 @app.route('/logout')
 def logout():
@@ -382,7 +388,25 @@ def logout():
     flash('You are now logged out', 'success')
     return redirect(url_for("login"))
 
-#################################################################
+
+@app.route('/DocAccPatOTPVerify', methods=['POST'])
+@is_logged_in
+def DocAccPatOTPVerify():
+    data = request.form
+    Doc_OTP = data['OTP']
+
+    print(Doc_OTP)
+
+    OTPs = db.child("OTPs").get().val()
+    for x in OTPs:
+        if str(OTPs[x]['OTP']) == str(Doc_OTP):
+            pat_info = db.child("Users/Patients/" + OTPs[x]['patient_id']).get().val()
+            session['patient_id'] = OTPs[x]['patient_id']
+            return render_template('pds.html', pinfo=pat_info)
+
+    flash('No Patient Found,Try Again', 'danger')
+    return redirect(url_for('doc_dashboard'))
+
 
 @app.route('/dashboard')
 @is_logged_in

@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <form action="/pat_upload" method="POST" enctype="multipart/form-data">
+        <p>Upload</p>
+        <label>Select files:</label>
+        <input type="file" name="files" multiple><br><br>
+        <button type="btn btn-primary">Submit</button>
+    </form>
+{% endblock %}

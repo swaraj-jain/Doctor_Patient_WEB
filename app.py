@@ -345,11 +345,12 @@ def is_logged_in(f):
     return wrap
 
 
+
 @app.route('/PatAccessDocOTP', methods=['POST'])
 def PatAccessDocOTP():
     OTP = OTP_gen()
     db.child("OTPs").push({
-        "email": session['email'],
+        "patient_id": session['patient_id'],
         "OTP": OTP
     })
     return render_template('pat_dashboard.html', OTP=OTP)
@@ -359,8 +360,8 @@ def PatAccessDocOTP():
 def Delete_OTP():
     time.sleep(10)
 
-    if len(session['email']):
-        this_OTP = "Your OTP is Expired"
+    if len(session['email']):    # yeh isiliye ki agar bich me user logout kar gya toh
+        this_OTP="Your OTP is Expired"
         OTPs = db.child("OTPs").get().val()
         for OTP in OTPs:
             if OTPs[OTP]['patient_id'] == session['patient_id']:
@@ -395,7 +396,7 @@ def DocAccPatOTPVerify():
     data = request.form
     Doc_OTP = data['OTP']
 
-    print(Doc_OTP)
+    #print(Doc_OTP)
 
     OTPs = db.child("OTPs").get().val()
     for x in OTPs:

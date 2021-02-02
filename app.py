@@ -5,6 +5,7 @@ from flask_mail import Mail, Message
 from random import randint
 import requests
 import time
+import datetime
 import pyrebase
 import hashlib
 import os
@@ -102,6 +103,8 @@ def index():
     return render_template('login.html', form1=form1, form2=form2)
 
 
+################################################################################Patient Uploading his reports
+
 @app.route('/pat_upload', methods=['GET', 'POST'])
 def pat_upload():
     if request.method == 'POST':
@@ -111,10 +114,15 @@ def pat_upload():
             file.save("tmp.jpeg", "JPEG")
             filepath = session['username'] + "/" + str(i) + str(time.time()) + ".jpeg"
             storage.child(filepath).put("tmp.jpeg")
+            today = datetime.datetime.now()
+            t_date = today.strftime("%d")+"/"+today.strftime("%m")+"/"+today.strftime("%Y")
+            p_time = today.strftime("%H")+":"+today.strftime("%M")+":"+today.strftime("%S")
             url = storage.child(filepath).get_url(None)
             data = {
                 "Url": url,
-                "Pushed by": "Patient"
+                "Pushed by": "Patient",
+                "Date":t_date,
+                "Time":p_time
             }
             db.child("Users/Patients/" + session['patient_id'] + '/Reports').push(data)
             os.remove("tmp.jpeg")
@@ -124,6 +132,7 @@ def pat_upload():
 
     return render_template("pat_upload.html")
 
+#####################################################Doctor Uploading Report after taking acess from patient
 
 @app.route('/doc_upload', methods=['GET', 'POST'])
 def doc_upload():
@@ -134,19 +143,25 @@ def doc_upload():
         filepath = session['username'] + "/" + str(time.time()) + ".jpeg"
         storage.child(filepath).put("tmp.jpeg")
         url = storage.child(filepath).get_url(None)
+        today = datetime.datetime.now()
+        t_date = today.strftime("%d")+"/"+today.strftime("%m")+"/"+today.strftime("%Y")
+        p_time = today.strftime("%H")+":"+today.strftime("%M")+":"+today.strftime("%S")
         data = {
             "Url": url,
-            "Pushed by": session["username"]
+            "Pushed by": session["username"],
+            "Date":t_date,
+            "Time":p_time
         }
         db.child("Users/Patients/" + session['patient_id'] + '/Reports').push(data)
         os.remove("tmp.jpeg")
-
         print("Uploaded files!")
         session['patient_id'] = ""
         return redirect(url_for('doc_dashboard'))
 
     return render_template("pat_upload.html")
 
+
+################################################################################################Register
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -258,10 +273,13 @@ def otpVerify():
     return render_template('otpVerify.html', form=OTPVerify(request.form))
 
 
+############################################ Login
+
 @app.route('/login')
 def login():
     return redirect(url_for('index'))
 
+############################################################################## Doctor Login
 
 @app.route('/docLogin', methods=['POST'])
 def docLogin():
@@ -295,6 +313,8 @@ def docLogin():
 
     return render_template('login.html', form2=form, form1=form)
 
+
+####################################################################### Patient Login
 
 @app.route('/patLogin', methods=['POST'])
 def patLogin():
@@ -331,6 +351,8 @@ def patLogin():
 
     return render_template('login.html', form1=form, form2=form)
 
+
+###################################################################################################
 
 # Check if the user is logged in
 def is_logged_in(f):
@@ -376,18 +398,15 @@ def pat_dashboard():
     return render_template('pat_dashboard.html')
 
 
+###############################################################################################  Doctor part
+
 @app.route('/doc_dashboard')
 @is_logged_in
 def doc_dashboard():
     return render_template('doc_dashboard.html')
 
 
-# Logout
-@app.route('/logout')
-def logout():
-    session.clear()
-    flash('You are now logged out', 'success')
-    return redirect(url_for("login"))
+################################################################## 
 
 
 @app.route('/DocAccPatOTPVerify', methods=['POST'])
@@ -408,6 +427,15 @@ def DocAccPatOTPVerify():
     flash('No Patient Found,Try Again', 'danger')
     return redirect(url_for('doc_dashboard'))
 
+########################################################################################## Doctor complete
+# Logout
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('You are now logged out', 'success')
+    return redirect(url_for("login"))
+
+#################################################################
 
 @app.route('/dashboard')
 @is_logged_in

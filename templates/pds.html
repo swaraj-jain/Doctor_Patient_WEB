@@ -3,11 +3,23 @@
 {% block body %}
     <h1 style="text-align: center;">{{pinfo['name']}} Dashboard</h1>
     <hr>
-    <form method="POST" action="/doc_upload" enctype="multipart/form-data">
+    <!--<form method="POST" action="/doc_upload" enctype="multipart/form-data">
         <label>Select report to upload:</label>
         <input type="file" name="file"><br><br>
         <button type="btn btn-primary">Submit</button>
-    </form>
+    </form>-->
+
+    <div class="row">
+        <div class="col-md-12">
+            <form method="POST" action="/doc_upload" enctype="multipart/form-data">
+                <div class="form-group">
+                  <label for="report">Select report to upload:</label>
+                  <input type="file" class="form-control" id="report" aria-describedby="emailHelp" name="file">
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg btn-block">Submit</button>
+            </form>
+        </div>
+    </div>
 <!-- 
     <div class="row">
         {% for report in pinfo['Reports'] %}
@@ -21,7 +33,7 @@
 -->
 
 
-    <div style="text-align: center">
+<!--  <div style="text-align: center">
 
         {% for report in pinfo['Reports'] %}
         <input id="satu" type="checkbox" class="carouselFullScreen" />
@@ -37,5 +49,32 @@
         {% endfor %}
         
     </div>  
+-->
+
+    <div style="margin-top: 5%;">
+        <h2 style="text-align: center;">{{pinfo['name']}} Old Reports</h2>
+        <br>
+        <table class="table" style="text-align: center;">
+            <thead>
+                <tr>
+                    <th>Posted_By</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>View_Reoport</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in pinfo['Reports'] %}
+                <tr>
+                    <td>{{ pinfo['Reports'][report]['Pushed by'] }}</td>
+                    <td>{{ pinfo['Reports'][report]['Date'] }}</td>
+                    <td>{{ pinfo['Reports'][report]['Time'] }}</td>
+                    <td><a target="_blank" href="{{ pinfo['Reports'][report]['Url'] }}"><button class="btn btn-danger">View</button></a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
 
 {% endblock %}

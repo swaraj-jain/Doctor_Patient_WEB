@@ -428,6 +428,7 @@ def DocAccPatOTPVerify():
     return redirect(url_for('doc_dashboard'))
 
 ########################################################################################## Doctor complete
+
 # Logout
 @app.route('/logout')
 def logout():
@@ -442,6 +443,26 @@ def logout():
 def dashboard():
     return render_template('dashboard.html')
 
+
+#############################################################################Login Patient_oldreport
+
+@app.route('/my_old_report')
+@is_logged_in
+def my_old_report():
+    pinfo = db.child("Users/Patients/"+session['patient_id'] ).get().val()
+    return render_template('my_old_report.html',pinfo = pinfo)
+
+###############################################################################Login Doctor given Old Reports
+
+@app.route('/my_given_oldreport')
+@is_logged_in
+def my_given_oldreport():
+    p_data = db.child("Users/Patients").get().val()
+    D_info = session
+    print(D_info)
+    return render_template('my_given_oldreport.html' , p_data = p_data , D_info = D_info )
+
+######################################################################################################
 
 if __name__ == '__main__':
     app.secret_key = 'secret123'

@@ -16,7 +16,7 @@
                   <label for="report">Select report to upload:</label>
                   <input type="file" class="form-control" id="report" aria-describedby="emailHelp" name="file">
                 </div>
-                <button type="submit" class="btn btn-primary btn-lg btn-block">Submit</button>
+                <button type="submit" class="btn btn-secondary btn-lg btn-block">Submit</button>
             </form>
         </div>
     </div>
@@ -55,12 +55,12 @@
         <h2 style="text-align: center;">{{pinfo['name']}} Old Reports</h2>
         <br>
         <table class="table" style="text-align: center;">
-            <thead>
+            <thead class="thead-dark">
                 <tr>
-                    <th>Posted_By</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>View_Reoport</th>
+                    <th scope="col">Posted_By</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">View_Reoport</th>
                 </tr>
             </thead>
             <tbody>
@@ -69,7 +69,7 @@
                     <td>{{ pinfo['Reports'][report]['Pushed by'] }}</td>
                     <td>{{ pinfo['Reports'][report]['Date'] }}</td>
                     <td>{{ pinfo['Reports'][report]['Time'] }}</td>
-                    <td><a target="_blank" href="{{ pinfo['Reports'][report]['Url'] }}"><button class="btn btn-danger">View</button></a></td>
+                    <td><a target="_blank" href="{{ pinfo['Reports'][report]['Url'] }}"><button class="btn btn-info">View</button></a></td>
                 </tr>
                 {% endfor %}
             </tbody>

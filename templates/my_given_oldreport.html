@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<div style="margin-top: 5%;">
+    <h2 style="text-align: center;">Old Reports  Given by Dr.{{D_info['username']}}</h2>
+    <br>
+    <table class="table" style="text-align: center;">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Patient_Mail</th>
+                <th scope="col">Date</th>
+                <th scope="col">Time</th>
+                <th scope="col">View_Reoport</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for patient in p_data %}
+            {% for report in p_data[patient]['Reports'] %}
+            {% if(p_data[patient]['Reports'][report]['Pushed by'] == D_info['username']) %} 
+            
+            <!--Mail dalenge baad mai there may be clash in pushed by-->
+
+            <tr>
+                <td>{{ p_data[patient]['email'] }}</td>
+                <td>{{ p_data[patient]['Reports'][report]['Date'] }}</td>
+                <td>{{ p_data[patient]['Reports'][report]['Time'] }}</td>
+                <td><a target="_blank" href="{{ p_data[patient]['Reports'][report]['Url'] }}"><button class="btn btn-info">View</button></a></td>
+            </tr>
+
+            {% endif %}
+            {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

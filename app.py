@@ -152,7 +152,16 @@ def doc_upload():
             "Date":t_date,
             "Time":p_time
         }
-        db.child("Users/Patients/" + session['patient_id'] + '/Reports').push(data)
+        p_email=db.child("Users/Patients/" + session['patient_id'] + '/email').get().val()
+        data2 = {
+            "Url": url,
+            "Pushed to": p_email,
+            "Date":t_date,
+            "Time":p_time
+        }
+        ##print(p_email)
+        db.child("Users/Patients/" + session['patient_id'] + '/Reports').push(data) ##patient_id for doctor
+        db.child("Users/Doctors/"+session['doc_ses_id']+"/g_Reports").push(data2)
         os.remove("tmp.jpeg")
         print("Uploaded files!")
         session['patient_id'] = ""
@@ -259,7 +268,8 @@ def otpVerify():
                 "DocId": docId,
                 "name": name,
                 "email": email,
-                "password": password
+                "password": password,
+                "g_Reports": ""
             }
 
             db.child("Users/Doctors").push(data)
@@ -288,12 +298,13 @@ def docLogin():
         email = form.email.data
         password = hashlib.sha256(str(form.password.data).encode())
         password = password.hexdigest()
-
+        user_id = None
         users = db.child("Users/Doctors").get().val()
         user = None
         for x in users:
             if users[x]['email'] == email and users[x]['password'] == password:
                 user = users[x]
+                user_id = x
                 print(user)
                 break
 
@@ -307,6 +318,7 @@ def docLogin():
             session['logged_in'] = True
             session['username'] = user['name']
             session['email'] = user['email']
+            session['doc_ses_id'] = user_id
             flash('Welcome ' + user['name'] + '!', 'success')
 
             return redirect(url_for('doc_dashboard'))
@@ -457,10 +469,10 @@ def my_old_report():
 @app.route('/my_given_oldreport')
 @is_logged_in
 def my_given_oldreport():
-    p_data = db.child("Users/Patients").get().val()
+    p_data = db.child("Users/Doctors/"+session['doc_ses_id']+"/g_Reports").get().val()
     D_info = session
     print(D_info)
-    return render_template('my_given_oldreport.html' , p_data = p_data , D_info = D_info )
+    return render_template('my_given_oldreport.html' , g_reports = p_data , D_info = D_info )
 
 ######################################################################################################
 

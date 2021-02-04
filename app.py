@@ -37,6 +37,7 @@ app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 mail = Mail(app)
 
+
 DocForm = None
 storage = firebase.storage()
 
@@ -130,7 +131,8 @@ def pat_upload():
         print("Uploaded " + str(len(files)) + " files!")
         return redirect(url_for('pat_dashboard'))
 
-    return render_template("pat_upload.html")
+    this_User =session['username']
+    return render_template("pat_upload.html" , this_User = this_User)
 
 #####################################################Doctor Uploading Report after taking acess from patient
 
@@ -167,7 +169,8 @@ def doc_upload():
         session['patient_id'] = ""
         return redirect(url_for('doc_dashboard'))
 
-    return render_template("pat_upload.html")
+    this_User =session['username']
+    return render_template("pat_upload.html", this_User = this_User)
 
 
 ################################################################################################Register
@@ -387,7 +390,8 @@ def PatAccessDocOTP():
         "patient_id": session['patient_id'],
         "OTP": OTP
     })
-    return render_template('pat_dashboard.html', OTP=OTP)
+    this_User =session['username']
+    return render_template('pat_dashboard.html', OTP=OTP , this_User = this_User)
 
 
 @app.route('/Delete_OTP')
@@ -400,14 +404,16 @@ def Delete_OTP():
         for OTP in OTPs:
             if OTPs[OTP]['patient_id'] == session['patient_id']:
                 db.child("OTPs/"+OTP).remove()
+    this_User =session['username']
+    return render_template('pat_dashboard.html', OTP=this_OTP , this_User = this_User)
 
-    return render_template('pat_dashboard.html', OTP=this_OTP)
-
+###########################################################################################
 
 @app.route('/pat_dashboard')
 @is_logged_in
 def pat_dashboard():
-    return render_template('pat_dashboard.html')
+    this_User =session['username']
+    return render_template('pat_dashboard.html' , this_User = this_User)
 
 
 ###############################################################################################  Doctor part
@@ -415,7 +421,8 @@ def pat_dashboard():
 @app.route('/doc_dashboard')
 @is_logged_in
 def doc_dashboard():
-    return render_template('doc_dashboard.html')
+    this_User =session['username']
+    return render_template('doc_dashboard.html', this_User = this_User)
 
 
 ################################################################## 
@@ -434,7 +441,8 @@ def DocAccPatOTPVerify():
         if str(OTPs[x]['OTP']) == str(Doc_OTP):
             pat_info = db.child("Users/Patients/" + OTPs[x]['patient_id']).get().val()
             session['patient_id'] = OTPs[x]['patient_id']
-            return render_template('pds.html', pinfo=pat_info)
+            this_User =session['username']
+            return render_template('pds.html', pinfo=pat_info , this_User = this_User)
 
     flash('No Patient Found,Try Again', 'danger')
     return redirect(url_for('doc_dashboard'))
@@ -461,8 +469,10 @@ def dashboard():
 @app.route('/my_old_report')
 @is_logged_in
 def my_old_report():
+    this_User =session['username']
+    print("hiiii" + this_User)
     pinfo = db.child("Users/Patients/"+session['patient_id'] ).get().val()
-    return render_template('my_old_report.html',pinfo = pinfo)
+    return render_template('my_old_report.html',pinfo = pinfo,this_User=this_User)
 
 ###############################################################################Login Doctor given Old Reports
 
@@ -472,7 +482,8 @@ def my_given_oldreport():
     p_data = db.child("Users/Doctors/"+session['doc_ses_id']+"/g_Reports").get().val()
     D_info = session
     print(D_info)
-    return render_template('my_given_oldreport.html' , g_reports = p_data , D_info = D_info )
+    this_User =session['username']
+    return render_template('my_given_oldreport.html' , g_reports = p_data , D_info = D_info ,this_User = this_User)
 
 ######################################################################################################
 

@@ -104,4 +104,15 @@
 
   /*===============================================================================================*/
 
-  
+  #Dashboard_heading{
+    text-align: center;
+  }
+
+  #Main_heading{
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  ._OTP_{
+    font-weight: bold;
+    font-size: 5rem;
+  }

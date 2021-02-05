@@ -5,6 +5,7 @@ from flask_mail import Mail, Message
 from random import randint
 import requests
 import time
+import datetime
 import pyrebase
 import hashlib
 import os
@@ -35,6 +36,7 @@ app.config['MAIL_PASSWORD'] = 'swarajfucks'
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 mail = Mail(app)
+
 
 DocForm = None
 storage = firebase.storage()
@@ -102,6 +104,8 @@ def index():
     return render_template('login.html', form1=form1, form2=form2)
 
 
+################################################################################Patient Uploading his reports
+
 @app.route('/pat_upload', methods=['GET', 'POST'])
 def pat_upload():
     if request.method == 'POST':
@@ -111,10 +115,15 @@ def pat_upload():
             file.save("tmp.jpeg", "JPEG")
             filepath = session['username'] + "/" + str(i) + str(time.time()) + ".jpeg"
             storage.child(filepath).put("tmp.jpeg")
+            today = datetime.datetime.now()
+            t_date = today.strftime("%d")+"/"+today.strftime("%m")+"/"+today.strftime("%Y")
+            p_time = today.strftime("%H")+":"+today.strftime("%M")+":"+today.strftime("%S")
             url = storage.child(filepath).get_url(None)
             data = {
                 "Url": url,
-                "Pushed by": "Patient"
+                "Pushed by": "Patient",
+                "Date":t_date,
+                "Time":p_time
             }
             db.child("Users/Patients/" + session['patient_id'] + '/Reports').push(data)
             os.remove("tmp.jpeg")
@@ -122,8 +131,10 @@ def pat_upload():
         print("Uploaded " + str(len(files)) + " files!")
         return redirect(url_for('pat_dashboard'))
 
-    return render_template("pat_upload.html")
+    this_User =session['username']
+    return render_template("pat_upload.html" , this_User = this_User)
 
+#####################################################Doctor Uploading Report after taking acess from patient
 
 @app.route('/doc_upload', methods=['GET', 'POST'])
 def doc_upload():
@@ -134,19 +145,35 @@ def doc_upload():
         filepath = session['username'] + "/" + str(time.time()) + ".jpeg"
         storage.child(filepath).put("tmp.jpeg")
         url = storage.child(filepath).get_url(None)
+        today = datetime.datetime.now()
+        t_date = today.strftime("%d")+"/"+today.strftime("%m")+"/"+today.strftime("%Y")
+        p_time = today.strftime("%H")+":"+today.strftime("%M")+":"+today.strftime("%S")
         data = {
             "Url": url,
-            "Pushed by": session["username"]
+            "Pushed by": session["username"],
+            "Date":t_date,
+            "Time":p_time
         }
-        db.child("Users/Patients/" + session['patient_id'] + '/Reports').push(data)
+        p_email=db.child("Users/Patients/" + session['patient_id'] + '/email').get().val()
+        data2 = {
+            "Url": url,
+            "Pushed to": p_email,
+            "Date":t_date,
+            "Time":p_time
+        }
+        ##print(p_email)
+        db.child("Users/Patients/" + session['patient_id'] + '/Reports').push(data) ##patient_id for doctor
+        db.child("Users/Doctors/"+session['doc_ses_id']+"/g_Reports").push(data2)
         os.remove("tmp.jpeg")
-
         print("Uploaded files!")
         session['patient_id'] = ""
         return redirect(url_for('doc_dashboard'))
 
-    return render_template("pat_upload.html")
+    this_User =session['username']
+    return render_template("pat_upload.html", this_User = this_User)
 
+
+################################################################################################Register
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -244,7 +271,8 @@ def otpVerify():
                 "DocId": docId,
                 "name": name,
                 "email": email,
-                "password": password
+                "password": password,
+                "g_Reports": ""
             }
 
             db.child("Users/Doctors").push(data)
@@ -258,10 +286,13 @@ def otpVerify():
     return render_template('otpVerify.html', form=OTPVerify(request.form))
 
 
+############################################ Login
+
 @app.route('/login')
 def login():
     return redirect(url_for('index'))
 
+############################################################################## Doctor Login
 
 @app.route('/docLogin', methods=['POST'])
 def docLogin():
@@ -270,12 +301,13 @@ def docLogin():
         email = form.email.data
         password = hashlib.sha256(str(form.password.data).encode())
         password = password.hexdigest()
-
+        user_id = None
         users = db.child("Users/Doctors").get().val()
         user = None
         for x in users:
             if users[x]['email'] == email and users[x]['password'] == password:
                 user = users[x]
+                user_id = x
                 print(user)
                 break
 
@@ -289,12 +321,15 @@ def docLogin():
             session['logged_in'] = True
             session['username'] = user['name']
             session['email'] = user['email']
+            session['doc_ses_id'] = user_id
             flash('Welcome ' + user['name'] + '!', 'success')
 
             return redirect(url_for('doc_dashboard'))
 
     return render_template('login.html', form2=form, form1=form)
 
+
+####################################################################### Patient Login
 
 @app.route('/patLogin', methods=['POST'])
 def patLogin():
@@ -332,6 +367,8 @@ def patLogin():
     return render_template('login.html', form1=form, form2=form)
 
 
+###################################################################################################
+
 # Check if the user is logged in
 def is_logged_in(f):
     @wraps(f)
@@ -345,48 +382,50 @@ def is_logged_in(f):
     return wrap
 
 
+
 @app.route('/PatAccessDocOTP', methods=['POST'])
 def PatAccessDocOTP():
     OTP = OTP_gen()
     db.child("OTPs").push({
-        "email": session['email'],
+        "patient_id": session['patient_id'],
         "OTP": OTP
     })
-    return render_template('pat_dashboard.html', OTP=OTP)
+    this_User =session['username']
+    return render_template('pat_dashboard.html', OTP=OTP , this_User = this_User)
 
 
 @app.route('/Delete_OTP')
 def Delete_OTP():
     time.sleep(10)
 
-    if len(session['email']):
-        this_OTP = "Your OTP is Expired"
+    if len(session['email']):    # yeh isiliye ki agar bich me user logout kar gya toh
+        this_OTP="Your OTP is Expired"
         OTPs = db.child("OTPs").get().val()
         for OTP in OTPs:
             if OTPs[OTP]['patient_id'] == session['patient_id']:
                 db.child("OTPs/"+OTP).remove()
+    this_User =session['username']
+    return render_template('pat_dashboard.html', OTP=this_OTP , this_User = this_User)
 
-    return render_template('pat_dashboard.html', OTP=this_OTP)
-
+###########################################################################################
 
 @app.route('/pat_dashboard')
 @is_logged_in
 def pat_dashboard():
-    return render_template('pat_dashboard.html')
+    this_User =session['username']
+    return render_template('pat_dashboard.html' , this_User = this_User)
 
+
+###############################################################################################  Doctor part
 
 @app.route('/doc_dashboard')
 @is_logged_in
 def doc_dashboard():
-    return render_template('doc_dashboard.html')
+    this_User =session['username']
+    return render_template('doc_dashboard.html', this_User = this_User)
 
 
-# Logout
-@app.route('/logout')
-def logout():
-    session.clear()
-    flash('You are now logged out', 'success')
-    return redirect(url_for("login"))
+################################################################## 
 
 
 @app.route('/DocAccPatOTPVerify', methods=['POST'])
@@ -395,24 +434,58 @@ def DocAccPatOTPVerify():
     data = request.form
     Doc_OTP = data['OTP']
 
-    print(Doc_OTP)
+    #print(Doc_OTP)
 
     OTPs = db.child("OTPs").get().val()
     for x in OTPs:
         if str(OTPs[x]['OTP']) == str(Doc_OTP):
             pat_info = db.child("Users/Patients/" + OTPs[x]['patient_id']).get().val()
             session['patient_id'] = OTPs[x]['patient_id']
-            return render_template('pds.html', pinfo=pat_info)
+            this_User =session['username']
+            return render_template('pds.html', pinfo=pat_info , this_User = this_User)
 
     flash('No Patient Found,Try Again', 'danger')
     return redirect(url_for('doc_dashboard'))
 
+########################################################################################## Doctor complete
+
+# Logout
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('You are now logged out', 'success')
+    return redirect(url_for("login"))
+
+#################################################################
 
 @app.route('/dashboard')
 @is_logged_in
 def dashboard():
     return render_template('dashboard.html')
 
+
+#############################################################################Login Patient_oldreport
+
+@app.route('/my_old_report')
+@is_logged_in
+def my_old_report():
+    this_User =session['username']
+    print("hiiii" + this_User)
+    pinfo = db.child("Users/Patients/"+session['patient_id'] ).get().val()
+    return render_template('my_old_report.html',pinfo = pinfo,this_User=this_User)
+
+###############################################################################Login Doctor given Old Reports
+
+@app.route('/my_given_oldreport')
+@is_logged_in
+def my_given_oldreport():
+    p_data = db.child("Users/Doctors/"+session['doc_ses_id']+"/g_Reports").get().val()
+    D_info = session
+    print(D_info)
+    this_User =session['username']
+    return render_template('my_given_oldreport.html' , g_reports = p_data , D_info = D_info ,this_User = this_User)
+
+######################################################################################################
 
 if __name__ == '__main__':
     app.secret_key = 'secret123'

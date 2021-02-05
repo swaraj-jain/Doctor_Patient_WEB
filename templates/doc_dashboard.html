@@ -1,13 +1,14 @@
-{% extends 'layout.html' %}
+{% extends 'layout1.html' %}
 
 {% block body %}
-    <h1>Doctor_Dashboard <small> Welcome {{session.username}}</small></h1>
-
+    <h1 id="Dashboard_heading"><small>Dr. {{session.username}} Dashboard</small></h1>
+    <br>
+    <br>
     <form action="/DocAccPatOTPVerify" method="POST">
         <div class="form-group">
             <label for="p_otp">Enter patient OTP: </label>
-            <input type="text" class="form-control" id="p_otp" placeholder="" name="OTP">
+            <input type="text" class="form-control" id="p_otp" placeholder="6 Digit Pin" name="OTP">
         </div>
-        <button class="btn btn-danger btn-block" id="access_to_doctor">Give access to doctor</button>
+        <button class="btn btn-danger btn-block" id="access_to_doctor">Access Patient Report</button>
     </form>
 {% endblock %}

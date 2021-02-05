@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+    <div style="margin-top: 5%;">
+        <h2 style="text-align: center;">{{pinfo['name']}} Old Reports</h2>
+        <br>
+        <table class="table" style="text-align: center;">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Posted_By</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">View_Reoport</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in pinfo['Reports'] %}
+                <tr>
+                    <td>{{ pinfo['Reports'][report]['Pushed by'] }}</td>
+                    <td>{{ pinfo['Reports'][report]['Date'] }}</td>
+                    <td>{{ pinfo['Reports'][report]['Time'] }}</td>
+                    <td><a target="_blank" href="{{ pinfo['Reports'][report]['Url'] }}"><button class="btn btn-info">View</button></a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'layout1.html' %}
+
+{% block body %}
+
+<div style="margin-top: 5%;">
+    <h2 style="text-align: center;">Old Reports  Given by Dr.{{D_info['username']}}</h2>
+    <br>
+    <br>
+    <table class="table" style="text-align: center;">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Patient_Mail</th>
+                <th scope="col">Date</th>
+                <th scope="col">Time</th>
+                <th scope="col">View_Reoport</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for g_report in g_reports %}
+
+            <tr>
+                <td>{{ g_reports[g_report]['Pushed to']}}</td>
+                <td>{{g_reports[g_report]['Date']}}</td>
+                <td>{{g_reports[g_report]['Time']}}</td>
+                <td><a target="_blank" href="{{ g_reports[g_report]['Url'] }}"><button class="btn btn-info">View</button></a></td>
+            </tr>
+            
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

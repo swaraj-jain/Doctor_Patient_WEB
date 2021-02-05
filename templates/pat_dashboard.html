@@ -1,13 +1,23 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-    <h1>Patient_Dashboard <small> Welcome {{session.username}}</small></h1>
-    <form action="/PatAccessDocOTP" method="POST">
-        <button class="btn btn-danger btn-block" id="access_to_doctor">Give access to doctor</button>
-        <br><br>
-    </form>
-    <form action="/pat_upload" method="GET">
-        <button class="btn btn-success btn-block" id="pat_upload">Upload Reports</button>
-    </form>
-    <p id="dummy_text">{{ OTP }}</p>
+    <h1 id="Dashboard_heading"> {{session.username}} <small>Dashboard</small></h1>
+    <hr>
+    <br>
+    <div class="jumbotron" style="border: 1px solid rgba(0,0,0,.1);">
+        <h2 id="Main_heading">Give Acess To Doctor</h2>
+        <form action="/PatAccessDocOTP" method="POST">
+            <button class="btn btn-secondary btn-block" id="access_to_doctor">Give access to doctor</button>
+            <p id="dummy_text" class="_OTP_" style="margin-bottom: 0em; padding-bottom: 0em;">{{ OTP }}</p>
+        </form>
+    </div>
+    <br>
+    <div class="jumbotron" style="border: 1px solid rgba(0,0,0,.1);">
+        <h2 id="Main_heading">Upload Reports</h2>
+        <form action="/pat_upload" method="GET">
+            <button class="btn btn-secondary btn-block" id="pat_upload">Upload Reports</button>
+        </form>
+    </div>
+    <br>
+
 {% endblock %}

@@ -33,6 +33,7 @@
         }
     </script>-->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
     <script>
         var dummy_text=document.querySelector('#dummy_text');
         OTP = dummy_text.innerHTML;
@@ -40,7 +41,7 @@
             $.ajax({
                 type:'GET',
                 url: "{{ url_for( 'Delete_OTP' ) }}", //'/Delete_OTP',
-                data: JSON, //.stringify({'myId':bunchOfIds}),
+                data: JSON,
                 contentType: "application/json",
                 success:function(response){ document.write(response);}
             }).done

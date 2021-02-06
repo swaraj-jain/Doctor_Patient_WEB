@@ -16,19 +16,35 @@
             </tr>
         </thead>
         <tbody>
-
-            {% for g_report in g_reports %}
+            {% for g_report in g_reports%}
 
             <tr>
-                <td>{{ g_reports[g_report]['Pushed to']}}</td>
+                <td>{{g_reports[g_report]['Pushed to']}}</td>
                 <td>{{g_reports[g_report]['Date']}}</td>
                 <td>{{g_reports[g_report]['Time']}}</td>
                 <td><a target="_blank" href="{{ g_reports[g_report]['Url'] }}"><button class="btn btn-info">View</button></a></td>
+                <td>
+                <button type="submit" class="btn btn-info" id = "{{ g_reports[g_report]['id'] }}" onclick="download(this.id)">Download</button>
+                </td>
             </tr>
-            
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<script>
+    function download(id) {
+        console.log(id);
+        $.ajax({
+            type:'POST',
+            url: "{{ url_for( 'downloadReport' ) }}",
+            data: {"id": id},
+            contentType: "application/json",
+            success: function(){
+                print("He")
+            }
+        });
+    }
+</script>
 
 {% endblock %}

@@ -32,7 +32,7 @@
 		}
 		.veen button{
 			background: transparent;
-			//background-image: linear-gradient(90deg, #e0b722, #ff4931);
+			/*background-image: linear-gradient(90deg, #e0b722, #ff4931);*/
 			display: inline-block;
 			padding: 10px 30px;
 			border: 3px solid #fff;
@@ -40,7 +40,7 @@
 			background-clip: padding-box;
 			position: relative;
 			color: #FFF;
-			//box-shadow: 0 0 4px rgba(0,0,0,.14), 0 4px 8px rgba(0,0,0,.28);
+			/*box-shadow: 0 0 4px rgba(0,0,0,.14), 0 4px 8px rgba(0,0,0,.28);*/
 			transition: all .25s;
 		}
 		.veen button.dark{
@@ -283,19 +283,42 @@ input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill{
 	</style>
     <script>
         $(document).ready(function(){
-			$(".veen .rgstr-btn button").click(function(){
-				$('.veen .wrapper').addClass('move');
-				$('.body').css('background','#e0b722');
-				$(".veen .login-btn button").removeClass('active');
-				$(this).addClass('active');
+          var def = ".login-btn button";
 
-			});
-			$(".veen .login-btn button").click(function(){
-				$('.veen .wrapper').removeClass('move');
-				$('.body').css('background','#ff4931');
-				$(".veen .rgstr-btn button").removeClass('active');
-				$(this).addClass('active');
-			});
+          if (!localStorage.getItem("reg")) {
+            localStorage.setItem("reg", ".login-btn button")
+          } else {
+            def = localStorage.getItem("reg")
+          } 
+
+          if (def === ".login-btn button") {
+            $('.veen .wrapper').addClass('move');
+            $('.body').css('background','#e0b722');
+            $(".veen .login-btn button").removeClass('active');
+            $(this).addClass('active');
+          } else if (def === ".rgstr-btn button") {
+            $('.veen .wrapper').removeClass('move');
+            $('.body').css('background','#ff4931');
+            $(".veen .rgstr-btn button").removeClass('active');
+            $(this).addClass('active');
+          }
+
+          $(".veen .rgstr-btn button").click(function(){
+          $('.veen .wrapper').addClass('move');
+          $('.body').css('background','#e0b722');
+          $(".veen .login-btn button").removeClass('active');
+          $(this).addClass('active');
+          
+			  	localStorage.setItem("reg", ".login-btn button")
+        });
+        $(".veen .login-btn button").click(function(){
+          $('.veen .wrapper').removeClass('move');
+          $('.body').css('background','#ff4931');
+          $(".veen .rgstr-btn button").removeClass('active');
+          $(this).addClass('active');
+
+			  	localStorage.setItem("reg", ".rgstr-btn button")
+        });
 		});
     </script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

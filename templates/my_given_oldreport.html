@@ -12,7 +12,8 @@
                 <th scope="col">Patient_Mail</th>
                 <th scope="col">Date</th>
                 <th scope="col">Time</th>
-                <th scope="col">View_Reoport</th>
+                <th scope="col">View_Report</th>
+                <th scope="col">Download</th>
             </tr>
         </thead>
         <tbody>
@@ -24,27 +25,12 @@
                 <td>{{g_reports[g_report]['Time']}}</td>
                 <td><a target="_blank" href="{{ g_reports[g_report]['Url'] }}"><button class="btn btn-info">View</button></a></td>
                 <td>
-                <button type="submit" class="btn btn-info" id = "{{ g_reports[g_report]['id'] }}" onclick="download(this.id)">Download</button>
+                <a target="_blank" href="{{ g_reports[g_report]['Url'] }} " download="download.jpg"><button class="btn btn-info">Download</button></a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
-
-<script>
-    function download(id) {
-        console.log(id);
-        $.ajax({
-            type:'POST',
-            url: "{{ url_for( 'downloadReport' ) }}",
-            data: {"id": id},
-            contentType: "application/json",
-            success: function(){
-                print("He")
-            }
-        });
-    }
-</script>
 
 {% endblock %}

@@ -12,6 +12,7 @@ import os
 from PIL import Image
 import numpy as np
 import cv2
+import urllib.request
 
 config = {
     "apiKey": "AIzaSyBztvVpB2d3Va3-jnDaySRdvbuiAv1wAbY",
@@ -462,19 +463,18 @@ def my_old_report():
 def my_given_oldreport():
     p_data = db.child("Users/Doctors/" + session['doc_ses_id'] + "/g_Reports").get().val()
 
-    for i, report in enumerate(p_data):
-        p_data[report]["id"] = i
-
     D_info = session
     print(D_info)
     this_User = session['username']
     return render_template('my_given_oldreport.html', g_reports=p_data, D_info=D_info, this_User=this_User)
 
 
-@app.route('/downloadReport', methods=['POST'])
-def downloadReport():
-    print("het")
-    return redirect(url_for("my_given_oldreport"))
+####################################################################
+@app.route("/search_doc")
+def search_doc():
+    docs = db.child("Users/Doctors").get().val()
+
+    return render_template('search_doc.html', docs=docs)
 
 
 ######################################################################################################

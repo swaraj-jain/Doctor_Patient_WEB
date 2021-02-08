@@ -1,6 +1,11 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+<!--Added for search------->
+
+    <input type="text" id="filterInput" placeholder="Search Posted_By..." onkeyup="searchinfo()">
+
+<!---------------------->
 
     <div style="margin-top: 5%;">
         <h2 style="text-align: center;">{{pinfo['name']}} Old Reports</h2>
@@ -14,10 +19,10 @@
                     <th scope="col">View_Reoport</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="total_report_info">
                 {% for report in pinfo['Reports'] %}
-                <tr>
-                    <td>{{ pinfo['Reports'][report]['Pushed by'] }}</td>
+                <tr id="report_info">
+                    <td id="s_names">{{ pinfo['Reports'][report]['Pushed by'] }}</td>
                     <td>{{ pinfo['Reports'][report]['Date'] }}</td>
                     <td>{{ pinfo['Reports'][report]['Time'] }}</td>
                     <td><a target="_blank" href="{{ pinfo['Reports'][report]['Url'] }}"><button class="btn btn-info">View</button></a></td>
@@ -26,5 +31,30 @@
             </tbody>
         </table>
     </div>
+
+<!--script for search-->
+
+    <script>
+
+        const searchinfo = () => {
+            let filter=document.getElementById('filterInput').value.toUpperCase();
+            let t_body = document.getElementById('total_report_info');
+            let d_info=t_body.getElementsByTagName('tr');
+            for (var i=0 ; i<d_info.length ; i++)
+            {
+                var t_n=d_info[i].getElementsByTagName('td')[0];
+                var t_name=(t_n.textContent||t_n.innerHTML);
+                if(t_name.toLocaleUpperCase().indexOf(filter) > -1){
+                    d_info[i].style.display='';
+                }else{
+                    d_info[i].style.display='none'
+                }
+            }
+            
+        }
+
+    </script>
+
+<!--script for search-->
 
 {% endblock %}

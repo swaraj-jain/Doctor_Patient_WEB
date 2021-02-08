@@ -3,6 +3,15 @@
 {% block body %}
 
 <div style="margin-top: 5%;">
+
+    <!--Addeed for search-->
+
+    <input type="text" id="filterInput" placeholder="search Patient mail..." onkeyup="searchinfo()">
+    <br>
+
+    <!---------------------->
+
+
     <h2 style="text-align: center;">Old Reports  Given by Dr.{{D_info['username']}}</h2>
     <br>
     <br>
@@ -15,20 +24,41 @@
                 <th scope="col">View_Reoport</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="total_report_info">
 
             {% for g_report in g_reports %}
 
-            <tr>
-                <td>{{ g_reports[g_report]['Pushed to']}}</td>
-                <td>{{g_reports[g_report]['Date']}}</td>
-                <td>{{g_reports[g_report]['Time']}}</td>
-                <td><a target="_blank" href="{{ g_reports[g_report]['Url'] }}"><button class="btn btn-info">View</button></a></td>
+            <tr >
+                <td id="doc_name">{{ g_reports[g_report]['Pushed to']}}</td>
+                <td id="s_date">{{g_reports[g_report]['Date']}}</td>
+                <td id="s_time">{{g_reports[g_report]['Time']}}</td>
+                <td id="s_link"><a target="_blank" href="{{ g_reports[g_report]['Url'] }}"><button class="btn btn-info">View</button></a></td>
             </tr>
             
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<script>
+
+    const searchinfo = () => {
+        let filter=document.getElementById('filterInput').value.toUpperCase();
+        let t_body = document.getElementById('total_report_info');
+        let d_info=t_body.getElementsByTagName('tr');
+        for (var i=0 ; i<d_info.length ; i++)
+        {
+            var t_n=d_info[i].getElementsByTagName('td')[0];
+            var t_name=(t_n.textContent||t_n.innerHTML);
+            if(t_name.toLocaleUpperCase().indexOf(filter) > -1){
+                d_info[i].style.display='';
+            }else{
+                d_info[i].style.display='none'
+            }
+        }
+        
+    }
+
+</script>
 
 {% endblock %}

@@ -1,6 +1,13 @@
 {% extends 'layout1.html' %}
 
 {% block body %}
+
+    <!--Added for search------->
+
+    <input type="text" id="filterInput" placeholder="Search Posted_By..." onkeyup="searchinfo()">
+
+    <!---------------------->
+
     <h1 style="text-align: center;">{{pinfo['name']}} Dashboard</h1>
     <hr>
     <!--<form method="POST" action="/doc_upload" enctype="multipart/form-data">
@@ -63,7 +70,7 @@
                     <th scope="col">View_Reoport</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="total_report_info">
                 {% for report in pinfo['Reports'] %}
                 <tr>
                     <td>{{ pinfo['Reports'][report]['Pushed by'] }}</td>
@@ -75,6 +82,28 @@
             </tbody>
         </table>
     </div>
+
+
+    <script>
+
+        const searchinfo = () => {
+            let filter=document.getElementById('filterInput').value.toUpperCase();
+            let t_body = document.getElementById('total_report_info');
+            let d_info=t_body.getElementsByTagName('tr');
+            for (var i=0 ; i<d_info.length ; i++)
+            {
+                var t_n=d_info[i].getElementsByTagName('td')[0];
+                var t_name=(t_n.textContent||t_n.innerHTML);
+                if(t_name.toLocaleUpperCase().indexOf(filter) > -1){
+                    d_info[i].style.display='';
+                }else{
+                    d_info[i].style.display='none'
+                }
+            }
+            
+        }
+    
+    </script>
 
 
 {% endblock %}

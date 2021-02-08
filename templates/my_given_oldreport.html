@@ -21,12 +21,20 @@
                 <th scope="col">Patient_Mail</th>
                 <th scope="col">Date</th>
                 <th scope="col">Time</th>
-                <th scope="col">View_Report</th>
-                <th scope="col">Download</th>
+                <th scope="col">View_Reoport</th>
             </tr>
         </thead>
+        <tbody id="total_report_info">
 
+            {% for g_report in g_reports %}
+
+            <tr >
+                <td id="doc_name">{{ g_reports[g_report]['Pushed to']}}</td>
+                <td id="s_date">{{g_reports[g_report]['Date']}}</td>
+                <td id="s_time">{{g_reports[g_report]['Time']}}</td>
+                <td id="s_link"><a target="_blank" href="{{ g_reports[g_report]['Url'] }}"><button class="btn btn-info">View</button></a></td>
             </tr>
+            
             {% endfor %}
         </tbody>
     </table>

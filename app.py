@@ -260,13 +260,19 @@ def otpVerify():
             email = DocForm.email.data
             password = hashlib.sha256(str(DocForm.password.data).encode())
             password = password.hexdigest()
-
+            adress={                                            
+                    'city':"",                             
+                    'state':"",                            
+                    'country':"",                             
+                    'pincode':""                       
+                }                            
             data = {
                 "DocId": docId,
                 "name": name,
                 "email": email,
                 "password": password,
-                "g_Reports": ""
+                "g_Reports": "",
+                "adress":adress                          
             }
 
             db.child("Users/Doctors").push(data)
@@ -469,6 +475,7 @@ def my_given_oldreport():
     return render_template('my_given_oldreport.html', g_reports=p_data, D_info=D_info, this_User=this_User)
 
 
+<<<<<<< main
 ####################################################################
 @app.route("/search_doc")
 def search_doc():
@@ -478,6 +485,38 @@ def search_doc():
 
 
 ######################################################################################################
+=======
+######################################################################################################
+
+@app.route('/my_profile')
+@is_logged_in
+def my_profile():
+    d_data = db.child("Users/Doctors/"+session['doc_ses_id']).get().val()
+    this_User =session['username']
+    return render_template('my_profile.html', doctor = d_data ,this_User=this_User)
+
+@app.route('/Update_my_profile' , methods=['POST'])
+@is_logged_in
+def Update_my_profile():
+    f_data = request.form
+    adress={
+        'city':f_data['city'],
+        'state':f_data['state'],
+        'country':f_data['country'],
+        'pincode':f_data['city_pin']
+    }
+    print(adress)
+
+    db.child("Users/Doctors/"+session['doc_ses_id']+'/adress').update(adress)
+    d_data = db.child("Users/Doctors/"+session['doc_ses_id']).get().val()
+    print(d_data)
+    flash('Profile had Been Update', 'success')
+    return redirect(url_for('my_profile'))
+
+
+#######################################################################################################
+
+>>>>>>> main
 if __name__ == '__main__':
     app.secret_key = 'secret123'
     app.run(debug=True)

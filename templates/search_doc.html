@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <div style="margin-top: 5%;">
+        <form id="doc_search">
+            <div class="form-group">
+                <label>Enter your location: </label>
+                <input id="pat_loc" class="form-control" type="text" placeholder="Enter a location" />
+                <input id="origin" type="hidden" name="origin" required/>
+            </div>
+        </form>
+        <br>
+        <table class="table" style="text-align: center;">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Place</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Profile</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in docs %}
+                <tr>
+                    <td>{{ docs[doc]["name"] }}</td>
+                    <td></td>
+                    <td>{{ docs[doc]["email"] }}</td>
+                    <td></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function autocomp() {
+            var input = document.getElementById('pat_loc');
+            var autocomplete = new google.maps.places.Autocomplete(input);
+        }
+
+        google.maps.event.addDomListener(window, 'load', autocomp);
+    </script>
+{% endblock %}

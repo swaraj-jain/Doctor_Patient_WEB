@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=places&language=en&key=AIzaSyBgsKshyOYpAm9tg1sGoV0MwcDYN9FqSKc" type="text/javascript"></script>
+
     <style>
         .dont_display{
             display: none;
@@ -33,6 +35,7 @@
         }
     </script>-->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
     <script>
         var dummy_text=document.querySelector('#dummy_text');
         OTP = dummy_text.innerHTML;
@@ -40,7 +43,7 @@
             $.ajax({
                 type:'GET',
                 url: "{{ url_for( 'Delete_OTP' ) }}", //'/Delete_OTP',
-                data: JSON, //.stringify({'myId':bunchOfIds}),
+                data: JSON,
                 contentType: "application/json",
                 success:function(response){ document.write(response);}
             }).done

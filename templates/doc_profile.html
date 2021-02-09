@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <h2>Dr. {{doctor['name']}}</h2>
+    <br>
+    <h3>City: {{doctor["address"]["city"]}}</h3>
+    <h3>Specialist: {{doctor["specialist"]}}</h3>
+    <h3>Email: {{doctor["email"]}}</h3>
+    <h3>Email: {{doctor["address"]["pincode"]}}</h3>
+
+{% endblock %}

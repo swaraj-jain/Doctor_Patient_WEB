@@ -320,7 +320,18 @@ def docLogin():
             session['email'] = user['email']
             session['doc_ses_id'] = user_id
             flash('Welcome ' + user['name'] + '!', 'success')
-
+            form_adress = db.child("Users/Doctors/"+session['doc_ses_id']+'/adress').get().val()
+            po = 1
+            if(not len(form_adress['pincode'])):
+                po = 0
+            if(not len(form_adress['country'])):
+                po = 0
+            if(not len(form_adress['city'])):
+                po = 0
+            if(not len(form_adress['state'])):
+                po = 0
+            if(po == 0):
+                flash("Update Your Profile", 'danger')
             return redirect(url_for('doc_dashboard'))
 
     return render_template('login.html', form2=form, form1=form)
@@ -355,7 +366,7 @@ def patLogin():
             session['email'] = user['email']
             session['patient_id'] = user_id
             flash('Welcome ' + user['name'] + '!', 'success')
-
+            
             return redirect(url_for('pat_dashboard'))
 
     return render_template('login.html', form1=form, form2=form)
@@ -475,7 +486,7 @@ def my_given_oldreport():
     return render_template('my_given_oldreport.html', g_reports=p_data, D_info=D_info, this_User=this_User)
 
 
-<<<<<<< main
+
 ####################################################################
 @app.route("/search_doc")
 def search_doc():
@@ -485,7 +496,6 @@ def search_doc():
 
 
 ######################################################################################################
-=======
 ######################################################################################################
 
 @app.route('/my_profile')
@@ -516,7 +526,6 @@ def Update_my_profile():
 
 #######################################################################################################
 
->>>>>>> main
 if __name__ == '__main__':
     app.secret_key = 'secret123'
     app.run(debug=True)

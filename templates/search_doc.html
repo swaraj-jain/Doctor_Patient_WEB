@@ -1,12 +1,20 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyAzveNSCUtvzBAJs4Vm7rLwXa7K23y-330" type="text/javascript"></script>
+
     <div style="margin-top: 5%;">
         <form id="doc_search">
             <div class="form-group">
                 <label>Enter your location: </label>
-                <input id="pat_loc" class="form-control" type="text" placeholder="Enter a location" />
-                <input id="origin" type="hidden" name="origin" required/>
+                <input type="text" id="filterInput" placeholder="Enter your location" onkeyup="searchinfo()">
+                <br>
+                <label>Specialist you need: </label>
+                <input type="text" id="filterInput1" placeholder="Specialist you need" onkeyup="searchinfo()">
+                <br>
+                <label>Name of the Doctor: </label>
+                <input type="text" id="filterInput2" placeholder="Enter a name" onkeyup="searchinfo()">
+                <br>
             </div>
         </form>
         <br>
@@ -15,17 +23,21 @@
                 <tr>
                     <th scope="col">Name</th>
                     <th scope="col">Place</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Profile</th>
+                    <th scope="col">Specialist</th>
+                    <th scope="col">View Profile</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="docTable">
                 {% for doc in docs %}
                 <tr>
                     <td>{{ docs[doc]["name"] }}</td>
-                    <td></td>
-                    <td>{{ docs[doc]["email"] }}</td>
-                    <td></td>
+                    <td>{{ docs[doc]["address"]["city"]}}, {{docs[doc]["address"]["state"] }}</td>
+                    <td>{{ docs[doc]["specialist"] }}</td>
+                    <td>
+                        <form method="POST" action="/search_doc/{{doc}}">
+                            <button type="submit" class="btn btn-small btn-danger">View Profile</button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -33,11 +45,39 @@
     </div>
 
     <script>
-        function autocomp() {
-            var input = document.getElementById('pat_loc');
-            var autocomplete = new google.maps.places.Autocomplete(input);
-        }
+        const searchinfo = () => {
+            let filter=document.getElementById('filterInput').value.toUpperCase();
+            let filter1=document.getElementById('filterInput1').value.toUpperCase();
+            let filter2=document.getElementById('filterInput2').value.toUpperCase();
 
-        google.maps.event.addDomListener(window, 'load', autocomp);
+            let t_body = document.getElementById('docTable');
+            let d_info=t_body.getElementsByTagName('tr');
+            for (var i=0 ; i<d_info.length ; i++)
+            {
+                var t_n=d_info[i].getElementsByTagName('td')[0];
+                var t_name=(t_n.textContent||t_n.innerHTML);
+
+                var t_s=d_info[i].getElementsByTagName('td')[2];
+                var t_spec=(t_s.textContent||t_s.innerHTML);
+
+                var t_p=d_info[i].getElementsByTagName('td')[1];
+                var t_plac=(t_p.textContent||t_s.innerHTML);
+
+                if(t_plac.toLocaleUpperCase().indexOf(filter) > -1){
+                    if (t_spec.toLocaleUpperCase().indexOf(filter1) > -1) {
+                        if (t_name.toLocaleUpperCase().indexOf(filter2) > -1) {
+                            d_info[i].style.display = ''
+                        } else {
+                            d_info[i].style.display = 'none'
+                        }
+                    } else {
+                        d_info[i].style.display = 'none'
+                    }
+                }else{
+                    d_info[i].style.display='none';
+                }
+            }
+        }
     </script>
+
 {% endblock %}

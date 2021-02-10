@@ -214,7 +214,7 @@ input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill{
 
 				{% include 'includes/_messages.html' %}
 				{% from "includes/_formhelpers.html" import render_field %}
-				<form id="login" tabindex="500" method="POST" action="/patRegister">
+				<form id="login" tabindex="500" method="POST" action="/patRegister" >
                     <h3>Patient</h3>
                     <div class="form-group">
 						{{render_field(form1.name, class_="form-control")}}
@@ -238,7 +238,7 @@ input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill{
 				
 				 <!--Doctor sign up form-->
 
-				<form id="register" tabindex="502" method="POST" action="/docVerify">
+				<form id="register" tabindex="502" method="POST" action="/docVerify" style="margin-top: -100px;">
                     <h3>Doctor</h3>
 					<div class="form-group">
 						{{render_field(form2.docId, class_="form-control")}}

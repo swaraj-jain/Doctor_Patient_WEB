@@ -1,11 +1,26 @@
-{% extends 'layout.html' %}
+{% extends 'pat_layout.html' %}
 
 {% block body %}
     <h2>Dr. {{doctor['name']}}</h2>
     <br>
-    <h3>City: {{doctor["address"]["city"]}}</h3>
-    <h3>Specialist: {{doctor["specialist"]}}</h3>
-    <h3>Email: {{doctor["email"]}}</h3>
-    <h3>Email: {{doctor["address"]["pincode"]}}</h3>
-
+    <div class="card">
+      <h5 class="card-header" id="info_col">Specializes in: </h5>
+      <div class="card-body">
+        <p class="card-text">{{doctor["specialist"]}}</p>
+      </div>
+    </div>
+    <br>
+    <div class="card">
+      <h5 class="card-header" id="info_col">Address: </h5>
+      <div class="card-body">
+        <p class="card-text">{{doctor["address"]["city"]}}, {{doctor["address"]["state"]}} - {{doctor["address"]["pincode"]}}</p>
+      </div>
+    </div>
+    <br>
+    <div class="card">
+      <h5 class="card-header" id="info_col">Email: </h5>
+      <div class="card-body">
+        <p class="card-text">{{doctor["email"]}}</p>
+      </div>
+    </div>
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+{% extends 'pat_layout.html' %}
 
 {% block body %}
     <!--<form action="/pat_upload" method="POST" enctype="multipart/form-data">
@@ -14,7 +14,7 @@
             <form action="/pat_upload" method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                   <label for="report">Select report to upload:</label>
-                  <input type="file" class="form-control" id="report" aria-describedby="emailHelp" name="files">
+                  <input type="file" class="form-control" id="report" aria-describedby="emailHelp" name="files" multiple>
                 </div>
                 <button type="submit" class="btn btn-secondary btn-lg btn-block">Submit</button>
             </form>

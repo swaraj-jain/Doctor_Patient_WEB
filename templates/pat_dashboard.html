@@ -1,29 +1,38 @@
-{% extends 'layout.html' %}
+{% extends 'pat_layout.html' %}
 
 {% block body %}
-    <h1 id="Dashboard_heading"> {{session.username}} <small>Dashboard</small></h1>
+    <h1 id="Dashboard_heading"> Dashboard</h1>
     <hr>
     <br>
-    <div class="jumbotron" style="border: 1px solid rgba(0,0,0,.1);">
-        <h2 id="Main_heading">Give Acess To Doctor</h2>
-        <form action="/PatAccessDocOTP" method="POST">
-            <button class="btn btn-secondary btn-block" id="access_to_doctor">Give access to doctor</button>
-            <p id="dummy_text" class="_OTP_" style="margin-bottom: 0em; padding-bottom: 0em;">{{ OTP }}</p>
+    <div class="card">
+      <h5 class="card-header features">Give Access to Doctor</h5>
+      <div class="card-body">
+        <p class="card-text">They will be able to view your previous report and a add one report of their own.</p>
+        <form method="POST" action="/PatAccessDocOTP">
+          <button class="btn btn_feature">Generate the OTP</button>
+          <p id="dummy_text" class="_OTP_" style="margin-bottom: 0em; padding-bottom: 0em; font-size: 2rem;">{{ OTP }}</p>
         </form>
+      </div>
     </div>
     <br>
-    <div class="jumbotron" style="border: 1px solid rgba(0,0,0,.1);">
-        <h2 id="Main_heading">Upload Reports</h2>
-        <form action="/pat_upload" method="GET">
-            <button class="btn btn-secondary btn-block" id="pat_upload">Upload Reports</button>
+    <div class="card">
+      <h5 class="card-header features">Upload your reports</h5>
+      <div class="card-body">
+        <p class="card-text">Your reports will be securely stored in google's storage and will be available 24/7.</p>
+        <form method="GET" action="/pat_upload">
+        <button class="btn btn_feature">Upload</button>
         </form>
+      </div>
     </div>
     <br>
-    <div class="jumbotron" style="border: 1px solid rgba(0,0,0,.1);">
-        <h2 id="Main_heading">Search Doc</h2>
-        <form action="/search_doc" method="GET">
-            <button class="btn btn-secondary btn-block" id="search_doc">Search Doc</button>
+    <div class="card">
+      <h5 class="card-header features">Look for doctors</h5>
+      <div class="card-body">
+        <p class="card-text">Not okay? Feeling sick? Search for doctors nearby you!</p>
+        <form method="GET" action="/search_doc">
+        <button class="btn btn_feature">Search</button>
         </form>
+      </div>
     </div>
     <br>
 

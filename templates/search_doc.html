@@ -1,20 +1,23 @@
-{% extends 'layout.html' %}
+{% extends 'pat_layout.html' %}
 
 {% block body %}
     <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyAzveNSCUtvzBAJs4Vm7rLwXa7K23y-330" type="text/javascript"></script>
 
     <div style="margin-top: 5%;">
         <form id="doc_search">
-            <div class="form-group">
-                <label>Enter your location: </label>
-                <input type="text" id="filterInput" placeholder="Enter your location" onkeyup="searchinfo()">
-                <br>
-                <label>Specialist you need: </label>
-                <input type="text" id="filterInput1" placeholder="Specialist you need" onkeyup="searchinfo()">
-                <br>
-                <label>Name of the Doctor: </label>
-                <input type="text" id="filterInput2" placeholder="Enter a name" onkeyup="searchinfo()">
-                <br>
+            <div class="form-group" style="display: flex; justify-content: space-around;">
+              <div>
+                <label class="form-label">Enter your location: </label>
+                <input type="text" class="form-control" id="filterInput" placeholder="Enter your location" onkeyup="searchinfo()">
+              </div>  
+              <div>
+                <label class="form-label">Specialist you need: </label>
+                <input type="text" class="form-control" id="filterInput1" placeholder="Specialist you need" onkeyup="searchinfo()">
+              </div>
+              <div>
+                <label class="form-label">Name of the Doctor: </label>
+                <input type="text" class="form-control" id="filterInput2" placeholder="Enter a name" onkeyup="searchinfo()">
+              </div>
             </div>
         </form>
         <br>
@@ -35,7 +38,7 @@
                     <td>{{ docs[doc]["specialist"] }}</td>
                     <td>
                         <form method="POST" action="/search_doc/{{doc}}">
-                            <button type="submit" class="btn btn-small btn-danger">View Profile</button>
+                            <button type="submit" class="btn view_btn">View Profile</button>
                         </form>
                     </td>
                 </tr>

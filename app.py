@@ -120,14 +120,14 @@ def pat_upload():
             url = storage.child(filepath).get_url(None)
             data = {
                 "Url": url,
-                "Pushed by": "Patient",
+                "Pushed by": "User",
                 "Date": t_date,
                 "Time": p_time
             }
             db.child("Users/Patients/" + session['patient_id'] + '/Reports').push(data)
             os.remove("tmp.jpeg")
 
-        print("Uploaded " + str(len(files)) + " files!")
+        flash("Uploaded " + str(len(files)) + " files!", "success")
         return redirect(url_for('pat_dashboard'))
 
     this_User = session['username']
@@ -164,6 +164,7 @@ def doc_upload():
         os.remove("tmp.jpeg")
         print("Uploaded files!")
         session['patient_id'] = ""
+        flash("Uploaded patient's report", "success")
         return redirect(url_for('doc_dashboard'))
 
     this_User = session['username']
@@ -244,46 +245,47 @@ def docVerify():
 def otpVerify():
     global DocForm
 
-    otp = (OTPVerify(request.form)).otp.data
-    otp2 = ""  # otp stored in the db
+    if request.method == 'POST':
+      otp = request.form["otp"]
+      print(otp)
+      otp2 = ""  # otp stored in the db
+      OTPs = db.child("OTPs2").get().val()
+      print(DocForm)
+      for OTP in OTPs:
+          if OTPs[OTP]['email'] == DocForm.email.data:
+              otp2 = OTPs[OTP]["OTP"]
+              break
 
-    if len(otp):
-        OTPs = db.child("OTPs2").get().val()
-        for OTP in OTPs:
-            if OTPs[OTP]['email'] == DocForm.email.data:
-                otp2 = OTPs[OTP]["OTP"]
-                break
+      if str(otp) == str(otp2):
+          docId = DocForm.docId.data
+          name = DocForm.name.data
+          email = DocForm.email.data
+          password = hashlib.sha256(str(DocForm.password.data).encode())
+          password = password.hexdigest()
+          address = {
+                  'city': "",
+                  'state': "",
+                  'country': "",
+                  'pincode': ""
+              }
+          data = {
+              "DocId": docId,
+              "name": name,
+              "email": email,
+              "password": password,
+              "g_Reports": "",
+              "address": address,
+              "specialist": ""
+          }
 
-        if str(otp) == str(otp2):
-            docId = DocForm.docId.data
-            name = DocForm.name.data
-            email = DocForm.email.data
-            password = hashlib.sha256(str(DocForm.password.data).encode())
-            password = password.hexdigest()
-            address = {
-                    'city': "",
-                    'state': "",
-                    'country': "",
-                    'pincode': ""
-                }
-            data = {
-                "DocId": docId,
-                "name": name,
-                "email": email,
-                "password": password,
-                "g_Reports": "",
-                "address": address,
-                "specialist": ""
-            }
+          db.child("Users/Doctors").push(data)
+          flash('Doctor, you are now registered and can log in', 'success')
 
-            db.child("Users/Doctors").push(data)
-            flash('Doctor, you are now registered and can log in', 'success')
+          return redirect(url_for('login'))
+      else:
+          flash('Wrong otp', 'danger')
 
-            return redirect(url_for('login'))
-        else:
-            flash('Wrong otp', 'danger')
-
-    return render_template('otpVerify.html', form=OTPVerify(request.form))
+    return render_template('otpVerify.html', form=request.form)
 
 
 ############################################ Login
@@ -319,7 +321,6 @@ def docLogin():
             session['username'] = user['name']
             session['email'] = user['email']
             session['doc_ses_id'] = user_id
-            flash('Welcome ' + user['name'] + '!', 'success')
             address = db.child("Users/Doctors/"+session['doc_ses_id'] + "/address").get().val()
             specialist = db.child("Users/Doctors/"+session['doc_ses_id'] + "/specialist").get().val()
             po = 1
@@ -334,7 +335,7 @@ def docLogin():
             if not len(address['state']):
                 po = 0
             if po == 0:
-                flash("Update Your Profile", 'danger')
+                flash("Complete Your Profile", 'danger')
 
             return redirect(url_for('doc_dashboard'))
 
@@ -369,7 +370,6 @@ def patLogin():
             session['username'] = user['name']
             session['email'] = user['email']
             session['patient_id'] = user_id
-            flash('Welcome ' + user['name'] + '!', 'success')
             
             return redirect(url_for('pat_dashboard'))
 
@@ -405,14 +405,17 @@ def PatAccessDocOTP():
 def Delete_OTP():
     time.sleep(10)
 
-    if len(session['email']):  # yeh isiliye ki agar bich me user logout kar gya toh
-        this_OTP = "Your OTP is Expired"
+    this_OTP = ""
+    if len(session['email']):
         OTPs = db.child("OTPs").get().val()
         for OTP in OTPs:
             if OTPs[OTP]['patient_id'] == session['patient_id']:
                 db.child("OTPs/" + OTP).remove()
-
+                break
+                
+        
     this_User = session['username']
+    flash("Your OTP has expired!", "success")
     return render_template('pat_dashboard.html', OTP=this_OTP, this_User=this_User)
 
 
@@ -446,9 +449,9 @@ def DocAccPatOTPVerify():
             pat_info = db.child("Users/Patients/" + OTPs[x]['patient_id']).get().val()
             session['patient_id'] = OTPs[x]['patient_id']
             this_User = session['username']
-            return render_template('pds.html', pinfo=pat_info, this_User=this_User)
+            return render_template('doc_upload.html', pinfo=pat_info, this_User=this_User)
 
-    flash('No Patient Found,Try Again', 'danger')
+    flash('No Patient Found, try Again', 'danger')
     return redirect(url_for('doc_dashboard'))
 
 
@@ -457,7 +460,7 @@ def DocAccPatOTPVerify():
 @app.route('/logout')
 def logout():
     session.clear()
-    flash('You are now logged out', 'success')
+    flash('Successfully logged out', 'success')
     return redirect(url_for("login"))
 
 
@@ -484,7 +487,6 @@ def my_given_oldreport():
     p_data = db.child("Users/Doctors/" + session['doc_ses_id'] + "/g_Reports").get().val()
 
     D_info = session
-    print(D_info)
     this_User = session['username']
     return render_template('my_given_oldreport.html', g_reports=p_data, D_info=D_info, this_User=this_User)
 
@@ -506,9 +508,11 @@ def my_profile():
     return render_template('my_profile.html', doctor=d_data, this_User=this_User)
 
 
-@app.route('/update_my_profile', methods=['POST'])
+@app.route('/update_my_profile', methods=['POST', 'GET'])
 @is_logged_in
 def update_my_profile():
+  d_data = db.child("Users/Doctors/"+session['doc_ses_id']).get().val()
+  if request.method == 'POST':
     f_data = request.form
     address = {
         'city': f_data['city'],
@@ -523,6 +527,8 @@ def update_my_profile():
 
     flash('Profile had Been Update', 'success')
     return redirect(url_for('my_profile'))
+
+  return render_template('update_profile.html', this_User=session['username'], doctor=d_data)
 #######################################################################################################
 
 
@@ -531,6 +537,22 @@ def doc_profile(d_id):
     d_data = db.child("Users/Doctors/"+d_id).get().val()
     this_User = session['username']
     return render_template('doc_profile.html', doctor=d_data, this_User=this_User)
+
+
+######################################################################################################
+@app.context_processor
+def override_url_for():
+    return dict(url_for=dated_url_for)
+
+
+def dated_url_for(endpoint, **values):
+    if endpoint == 'static':
+        filename = values.get('filename', None)
+        if filename:
+            file_path = os.path.join(app.root_path, endpoint, filename)
+            values['q'] = int(os.stat(file_path).st_mtime)
+
+    return url_for(endpoint, **values)
 
 
 if __name__ == '__main__':

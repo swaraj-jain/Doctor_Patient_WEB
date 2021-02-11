@@ -1,0 +1,42 @@
+
+<!--For doctor-->
+<header class="site-header">
+  <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top" style="background-color: #0e273c;">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/doc_dashboard">DocPat</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse header-1" id="navbarNavDropdown">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="/my_profile" id="logout">Profile</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="/doc_dashboard" id="Home">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/my_given_oldreport" id="Old">Old reports</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/logout" id="logout">Logout</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav header-2">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa fa-user-circle" style="
+              margin-right: 8rem;
+              font-size: 1.8rem;"></i>
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" id="dropdown">
+              <li><a class="dropdown-item" href="/my_profile">Your Profile</a></li>
+              <li><a class="dropdown-item" href="/logout">Logout</a></li>
+              <li><a class="dropdown-item" href="#" id="unique">Dr. {{session.username}}</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>

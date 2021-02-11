@@ -2,6 +2,11 @@ body {
     background: #fafafa;
     color: #333333;
     margin-top: 5rem;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+
+  .dont_display{
+    display: none;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -81,4 +86,95 @@ body {
 
   #msgbox{
     background: #ece9ef;
+  }
+
+  .header-1 {
+    margin-left: 6%;
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .header-2 {
+    margin-left: auto;
+  }
+
+  .header-2 img {
+    width: 15%;
+  }
+
+  #Dashboard_heading {
+    text-align: left;
+  }
+
+  #unique {
+    text-decoration: none;
+    background-color: #0e273c;
+    color: floralwhite;
+    margin-top: 35px;
+    text-align: center;
+  }
+
+  tr:nth-child(even) {background-color: #cecece;}
+
+  #info_col {
+    background-color: #ddbb55;
+  }
+
+  .view_btn {
+    background-color: #4f5f9f;
+    border-color: #4f5f9f;
+    width: 70%;
+    color: floralwhite;
+  }
+
+  .view_btn:hover {
+    background-color: #222d58;
+    border-color: #222d58;
+    width: 70%;
+    color: floralwhite;
+  }
+
+  .features {
+    background-color:#38405F;
+    color: floralwhite;
+  }
+
+  .btn_feature {
+    background-color: #868686;
+    border:  #868686;
+    color: floralwhite;
+  }
+
+  .btn_feature:hover {
+    background-color: #999999;
+    border:  #999999;
+    color: floralwhite;
+  }
+
+  #update {
+    background-color: #0e273c;
+    color: floralwhite;
+    width: 100%;
+  }
+
+  #logout {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .view_btn {
+      width: 100%;
+    }
+
+    .header-2 {
+      display: none;
+    }
+
+    #logout {
+      display: block;
+    }
+
+    .table-responsive-md {
+      font-size: 1rem;
+    }
   }

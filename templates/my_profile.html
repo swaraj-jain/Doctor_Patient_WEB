@@ -3,14 +3,6 @@
 {% block body %}
     <br>
 
-    <!--<img src="{{doctor['profile_img']}}" alt="loading">
-    <form action="/upload_profile_image" method="POST"  enctype="multipart/form-data">
-      <div class="form-group">
-        <label for="report">Select:</label>
-        <input type="file" class="form-control" id="report" name="file">
-      </div>
-      <button type="submit" class="btn btn-secondary btn-lg btn-block">Submit</button>
-    </form>-->
 
     <div class="row">
       <div class="col-md-3">
@@ -23,26 +15,6 @@
     </div>
     <br>
 
-   <!-- <div class="row">
-      <div class="col-md-3" style="padding: auto;">
-        <form id="upload-file" action="upload_profile_image" method="post" enctype="multipart/form-data">
-          <div class="image-preview">
-            <div id="imagePreview" style="background-image: url('{{doctor['profile_img']}}');">
-            </div>
-          </div>
-          <h2 style="text-align: center;">Dr. {{doctor['name']}}</h2>
-          <div class="image-edit">
-              <input type='file' name="file" id="imageUpload" accept=".png, .jpg, .jpeg" />
-              <label for="imageUpload"></label>
-          </div>
-          <button type="submit" class="btn btn-secondary btn-lg btn-block">Upload</button>
-      </form>
-      
-      </div>
-    </div>
-  -->
-
-
     <div class="card">
       <h5 class="card-header" id="info_col">Specializes in: </h5>
       <div class="card-body">
@@ -53,7 +25,12 @@
     <div class="card">
       <h5 class="card-header" id="info_col">Address: </h5>
       <div class="card-body">
-        <p class="card-text">{{doctor["address"]["city"]}}, {{doctor["address"]["state"]}} - {{doctor["address"]["pincode"]}}</p>
+            {%if doctor["address"]["city"] + "," + doctor["address"]["state"] + "-" + doctor["address"]["pincode"] == ",-" %}
+                <p class="card-text"></p>
+            {%else%}
+                <p class="card-text">{{doctor["address"]["city"]}}, {{doctor["address"]["state"]}} - {{doctor["address"]["pincode"]}}</p>
+            {%endif%}
+
       </div>
     </div>
     <br>

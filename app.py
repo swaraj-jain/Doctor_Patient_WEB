@@ -108,6 +108,8 @@ def index():
 @app.route('/pat_upload', methods=['GET', 'POST'])
 def pat_upload():
     if request.method == 'POST':
+        f_data=request.form['Note']
+        print(f_data)
         files = request.files.getlist("files")
         for i, file in enumerate(files):
             file = Image.open(file)
@@ -122,7 +124,8 @@ def pat_upload():
                 "Url": url,
                 "Pushed by": "User",
                 "Date": t_date,
-                "Time": p_time
+                "Time": p_time,
+                "Note":f_data
             }
             db.child("Users/Patients/" + session['patient_id'] + '/Reports').push(data)
             os.remove("tmp.jpeg")
@@ -150,7 +153,8 @@ def doc_upload():
             "Url": url,
             "Pushed by": session["username"],
             "Date": t_date,
-            "Time": p_time
+            "Time": p_time,
+            "Note":""
         }
         p_email = db.child("Users/Patients/" + session['patient_id'] + '/email').get().val()
         data2 = {
@@ -199,7 +203,8 @@ def patRregister():
             "name": name,
             "email": email,
             "password": password,
-            "Reports": ""
+            "Reports": "",
+            "Reminder":""
         }
 
         db.child("Users/Patients").push(data)
@@ -275,7 +280,8 @@ def otpVerify():
               "password": password,
               "g_Reports": "",
               "address": address,
-              "specialist": ""
+              "specialist": "",
+              "profile_img":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAM1BMVEXk5ueutLeqsbTn6eqpr7PJzc/j5ebf4eLZ3N2wtrnBxsjN0NLGysy6v8HT1tissra8wMNxTKO9AAAFDklEQVR4nO2d3XqDIAxAlfivoO//tEOZWzvbVTEpic252W3PF0gAIcsyRVEURVEURVEURVEURVEURVEURVEURVEURVEURflgAFL/AirAqzXO9R7XNBVcy9TbuMHmxjN6lr92cNVVLKEurVfK/zCORVvW8iUBnC02dj+Wpu0z0Y6QlaN5phcwZqjkOkK5HZyPAjkIjSO4fIdfcOwFKkJlX4zPu7Ha1tIcwR3wWxyFhRG6g4Je0YpSPDJCV8a2Sv2zd1O1x/2WMDZCwljH+clRrHfWCLGK8REMiql//2si5+DKWKcWeAGcFMzzNrXC/0TUwQ2s6+LhlcwjTMlYsUIQzPOCb7YBiyHopyLXIEKPEkI/TgeuiidK/R9FniUDOjRDpvm0RhqjMyyXNjDhCfIMYl1gGjIMIuYsnGEYRMRZOMMunaLVwpWRW008v6fYKDIzxCwVAeNSO90BJW6emelYBRF/kHpYGVaoxTDAaxOFsfP9y8hpJ4xd7gOcij7JNGQ1EYFgkPJa1jQEiYZXRaRINKxSDUW9n+FT82lSKadkiru9/4XPqSLWOekGPoY05TAvLm9orm+YWuwHoBHkZKijNBJGmeb61eL6Ff/6q7bLr7yvv3vKGhpDRjvgjGaPz+gUg6YgcvpyAR2FIZ9U6nEEyZRTovmEU32KichpGn7C17XrfyH9gK/c0CMP05HZIM2uf9sEveizKveBy9/6Qt7o89ne33D525cfcIMW6ab+TMEukQbQbu+xu7X3A9bChmWaCeAkG17bpntwXgWxHaMzGPmUaR5dQZiKqRVeUZ3047fi3nAu28h4CHxCsZAgmEH8Y27jJAhm8c+5RQzRQNVGhVFSfxOYIjp/pP7RxzjevYXVGf4eLt+BJ1vCuLuLkrgABgCGXZ2wik5uty+oBvNirI6mkzhAf4Gsb58Hcm67Jzd+KwD10BYPLL3e0MjvKrgAULnOfveF/O4N2Xb9BZom3gJes3F9X5Zze8/6Yt09b4CrqsEjUv8oFBaR2rl+6CZr2xVrp24o/WitBKuGrrpl1+bFkmK2qXTON4VpbdfLa7o7y/WdLxG7lm2Lqh2clOwTegbvc/vj2U78CwhA87Bn8G5Nk3eOb0Nsr9flz3sG78UUtue4kpv1xvjg3TMay62BMlTlP+vrOMnJsRmt/ze0jsfkPPYdAH57hK+34PeOyc8XIXu5xT2HsUkdZz+adwg8HGFfQ3K5jtDvbUiO4Di9/ywHGrL88pDizZ++oTp+an+SMX/ndymUCwmHMdO7yuOx83pUx/eEMU0AvxWndwgidAqOZ8ypCwdEfvvEo6D9HwpA8wzvmOJEqAg9ySu8g4x0Hb9hSB/BANEKJ+LbPBU0lzbAJs4xt1AoshKkUGQmiH8/jJ0gdhTTLmSegHlPE0oOdXALnqDjKYh3px//fSgSWG8UqfrrIICzYYSJXRr9BSPbpNzw7gBjKjKOYI7ReIGqQRIap5+5MdjyvuDkExvGeXSlONWZAP3/AZBwJohU7QJRGU+cTVH18ELmRPNBmibW6MT/k1b0XhdkRBvyT6SB6EYv/GvhSmRNpGngRULsAlxMCGNXp7w3FfdEbTEEDdLI9TdIKRUzUesa3I461ER8cpNT7gMRhpKmYVS9ELOgCUQsa4SsulciKiLbY+AnHD8cpuhISsnxpamI84sbDq9qYJgf8wiiOBrC7Ml7M7ZECCqKoiiKoiiKoiiKoijv5AvJxlZRyNWWLwAAAABJRU5ErkJggg=="
           }
 
           db.child("Users/Doctors").push(data)
@@ -514,12 +520,23 @@ def update_my_profile():
   d_data = db.child("Users/Doctors/"+session['doc_ses_id']).get().val()
   if request.method == 'POST':
     f_data = request.form
+
+    file = request.files['files']
+
     address = {
         'city': f_data['city'],
         'state': f_data['state'],
         'country': f_data['country'],
         'pincode': f_data['city_pin']
     }
+
+    file = Image.open(file)
+    file.save("tmp.jpeg", "JPEG")
+    filepath = "doctor_profile/" + session['username'] + "/" + str(time.time()) + ".jpeg"
+    storage.child(filepath).put("tmp.jpeg")
+    url = storage.child(filepath).get_url(None)
+    db.child("Users/Doctors/" + session['doc_ses_id']).update({"profile_img":url})
+    os.remove("tmp.jpeg")
 
     db.child("Users/Doctors/" + session['doc_ses_id'] + '/address').update(address)
     db.child("Users/Doctors/" + session['doc_ses_id']).update({"specialist": f_data['specialist']})
@@ -553,6 +570,52 @@ def dated_url_for(endpoint, **values):
             values['q'] = int(os.stat(file_path).st_mtime)
 
     return url_for(endpoint, **values)
+
+#####################################################################################################
+
+@app.route("/upload_profile_image" , methods=['POST'])
+def upload_profile_image():
+    file = request.files['file']
+    file = Image.open(file)
+    file.save("tmp.jpeg", "JPEG")
+    filepath = "doctor_profile/" + session['username'] + "/" + str(time.time()) + ".jpeg"
+    storage.child(filepath).put("tmp.jpeg")
+    url = storage.child(filepath).get_url(None)
+    print(url)
+    db.child("Users/Doctors/" + session['doc_ses_id']).update({"profile_img":url})
+    #db.child("Users/Doctors/" + session['doc_ses_id'] + '/profile_img').(url)
+    os.remove("tmp.jpeg")
+    return redirect(url_for("my_profile"))
+
+
+##################################################################################### Reminders
+
+
+@app.route("/reminder")
+def reminder():
+    pinfo = db.child("Users/Patients/" + session['patient_id']).get().val()
+    return render_template('reminder.html' , pinfo=pinfo)
+
+
+@app.route("/add_reminder" , methods=['POST'])
+def add_reminder():
+    f_data = request.form['Reminder']
+    data = {
+        "rem":f_data
+    }
+    db.child("Users/Patients/" + session['patient_id']+"/Reminder").push(data)
+    return redirect(url_for('reminder'))
+
+
+@app.route("/delete_reminder" + "/<rem_id>", methods=['POST'])
+def delete_reminder(rem_id):
+    db.child("Users/Patients/" + session['patient_id']+"/Reminder/"+rem_id).remove()
+    flash('Reminder Deleted', 'success')
+    return redirect(url_for('reminder'))
+
+
+
+########################################################################################
 
 
 if __name__ == '__main__':

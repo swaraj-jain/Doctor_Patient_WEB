@@ -1,39 +1,48 @@
-{% extends 'pat_layout.html' %}
+{% extends 'doc_layout.html' %}
 
 {% block body %}
+    <br>
 
-    <div style="margin-top: 5%;">
-        <h2 style="text-align: center;">Stored Reports</h2>
-        <br>
-        <div class="table-responsive-md">
-        <table class="table" style="text-align: center;">
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Posted By</th>
-                    <th scope="col">Date</th>
-                    <th scope="col">Time</th>
-                    <th scope="col">Note</th>
-                    <th scope="col">View Report</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for report in pinfo['Reports'] %}
-                <tr>
-                    {% if  pinfo['Reports'][report]['Pushed by']  == "User" %}
-                        <td>{{ pinfo['Reports'][report]['Pushed by'] }}</td>
-                    {% endif %}
-                    {% if  pinfo['Reports'][report]['Pushed by']  != "User" %}
-                        <td>Dr. {{ pinfo['Reports'][report]['Pushed by'] }}</td>
-                    {% endif %}
-                    <td>{{ pinfo['Reports'][report]['Date'] }}</td>
-                    <td>{{ pinfo['Reports'][report]['Time'] }}</td>
-                    <td>{{ pinfo['Reports'][report]['Note'] }}</td>
-                    <td><a target="_blank" href="{{ pinfo['Reports'][report]['Url'] }}"><button class="btn view_btn">View</button></a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+    <div class="row">
+      <div class="col-md-3">
+        <div class="image-preview">
+          <div id="imagePreview" style="background-image: url('{{doctor['profile_img']}}');">
+          </div>
         </div>
+        <h2 style="text-align: center;">Dr. {{doctor['name']}}</h2>
+      </div>
     </div>
+    <br>
 
+    <div class="card">
+      <h5 class="card-header" id="info_col">Specializes in: </h5>
+      <div class="card-body">
+        <p class="card-text">{{doctor["specialist"]}}</p>
+      </div>
+    </div>
+    <br>
+    <div class="card">
+      <h5 class="card-header" id="info_col">Address: </h5>
+      <div class="card-body">
+            {%if doctor["address"]["city"] + "," + doctor["address"]["state"] + "-" + doctor["address"]["pincode"] == ",-" %}
+                <p class="card-text"></p>
+            {%else%}
+                <p class="card-text">{{doctor["address"]["city"]}}, {{doctor["address"]["state"]}} - {{doctor["address"]["pincode"]}}</p>
+            {%endif%}
+
+      </div>
+    </div>
+    <br>
+    <div class="card">
+      <h5 class="card-header" id="info_col">Email: </h5>
+      <div class="card-body">
+        <p class="card-text">{{doctor["email"]}}</p>
+      </div>
+    </div>
+    <br>
+
+    <form action="/update_my_profile" method="GET">
+      <button class="btn" id="update">Update your profile</button>
+    </form>
 {% endblock %}

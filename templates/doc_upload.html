@@ -25,6 +25,7 @@
                     <th scope="col">Posted By</th>
                     <th scope="col">Date</th>
                     <th scope="col">Time</th>
+                    <th scope="col">Note</th>
                     <th scope="col">Reports</th>
                 </tr>
             </thead>
@@ -34,6 +35,7 @@
                     <td>{{ pinfo['Reports'][report]['Pushed by'] }}</td>
                     <td>{{ pinfo['Reports'][report]['Date'] }}</td>
                     <td>{{ pinfo['Reports'][report]['Time'] }}</td>
+                    <td>{{ pinfo['Reports'][report]['Note'] }}</td>
                     <td><a target="_blank" href="{{ pinfo['Reports'][report]['Url'] }}"><button class="btn view_btn">View</button></a></td>
                 </tr>
                 {% endfor %}

@@ -1,0 +1,42 @@
+{% extends 'pat_layout.html' %}
+
+{% block body %}
+    <div style="margin-top: 5%;">
+        <form method="POST" action="add_reminder">
+            <div class="form-group">
+                <label for="Reminder">Reminder: </label>
+                <input type="text" class="form-control" id="Reminder" placeholder="Add Reminder" name="Reminder">
+            </div>
+            <button class="btn btn_feature" id="access_to_doctor">Add</button>
+        </form>
+        <h2 style="text-align: center;">Reminders</h2>
+        <br>
+        <div class="table-responsive-md">
+        <table class="table" style="text-align: center;">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Message</th>
+                    <th scope="col">Delete Reminder</th>
+                    <!--<th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Note</th>
+                    <th scope="col">View Report</th>-->
+                </tr>
+            </thead>
+            <tbody>
+                {% for reminder in pinfo['Reminder'] %}
+                <tr>
+                    <td>{{ pinfo['Reminder'][reminder]['rem'] }}</td>
+                    <td>
+                        <form method="POST" action="/delete_reminder/{{reminder}}">
+                            <button type="submit" class="btn view_btn">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+{% endblock %}

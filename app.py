@@ -1,18 +1,15 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, session, logging
+from flask import Flask, render_template, request, flash, redirect, url_for, session
 from functools import wraps
-from wtforms import Form, StringField, TextAreaField, PasswordField, validators
+from flask_session import Session
+from wtforms import Form, StringField, PasswordField, validators
 from flask_mail import Mail, Message
 from random import randint
-import requests
 import time
 import datetime
 import pyrebase
 import hashlib
 import os
 from PIL import Image
-import numpy as np
-import cv2
-import urllib.request
 
 config = {
     "apiKey": "AIzaSyBztvVpB2d3Va3-jnDaySRdvbuiAv1wAbY",
@@ -29,6 +26,15 @@ firebase = pyrebase.initialize_app(config)
 db = firebase.database()
 
 app = Flask(__name__)
+sess = Session()
+
+
+app.secret_key = 'ug86ooriuygiy'
+app.config['SESSION_TYPE'] = 'filesystem'
+
+sess.init_app(app)
+
+
 mail = Mail(app)
 app.config["MAIL_SERVER"] = 'smtp.gmail.com'
 app.config["MAIL_PORT"] = 465
@@ -376,7 +382,7 @@ def patLogin():
             session['username'] = user['name']
             session['email'] = user['email']
             session['patient_id'] = user_id
-            
+
             return redirect(url_for('pat_dashboard'))
 
     return render_template('login.html', form1=form, form2=form)
@@ -418,8 +424,8 @@ def Delete_OTP():
             if OTPs[OTP]['patient_id'] == session['patient_id']:
                 db.child("OTPs/" + OTP).remove()
                 break
-                
-        
+
+
     this_User = session['username']
     flash("Your OTP has expired!", "success")
     return render_template('pat_dashboard.html', OTP=this_OTP, this_User=this_User)
@@ -619,5 +625,4 @@ def delete_reminder(rem_id):
 
 
 if __name__ == '__main__':
-    app.secret_key = 'secret123'
     app.run(debug=True)
